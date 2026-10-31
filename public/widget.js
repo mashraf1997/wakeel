@@ -6,7 +6,7 @@
   window.__wakeelLoaded = true;
 
   var script = document.currentScript || document.querySelector('script[src*="widget.js"]');
-  var BASE = new URL(script.src).origin;
+  var BASE = script.src.replace(/\/widget\.js(\?.*)?$/, ''); // includes /b/<slug> in agency mode
   var KEY = 'wakeel_visitor';
   var visitor;
   try { visitor = localStorage.getItem(KEY); } catch (e) { /* storage blocked */ }
@@ -16,7 +16,9 @@
   }
 
   var host = document.createElement('div');
-  host.style.cssText = 'position:fixed;z-index:2147483000;bottom:20px;right:20px;';
+  // Right-to-left sites (Arabic, Hebrew...) get the bubble on the left, where readers expect it.
+  var rtl = (document.documentElement.dir || document.body.dir || '').toLowerCase() === 'rtl';
+  host.style.cssText = 'position:fixed;z-index:2147483000;bottom:20px;' + (rtl ? 'left:20px;' : 'right:20px;');
   document.body.appendChild(host);
   var root = host.attachShadow({ mode: 'open' });
 
@@ -25,7 +27,7 @@
     '*{box-sizing:border-box;font-family:"Segoe UI","Noto Sans Arabic",Tahoma,system-ui,sans-serif}',
     '.fab{width:58px;height:58px;border-radius:50%;border:0;cursor:pointer;background:var(--c);color:#fff;box-shadow:0 6px 20px rgba(0,0,0,.22);display:grid;place-items:center}',
     '.fab:focus-visible,button:focus-visible{outline:3px solid #fff;outline-offset:2px}',
-    '.panel{position:absolute;bottom:72px;right:0;width:min(370px,calc(100vw - 32px));height:min(540px,calc(100vh - 110px));background:#fff;color:#14211E;border-radius:16px;box-shadow:0 12px 40px rgba(0,0,0,.25);display:none;flex-direction:column;overflow:hidden}',
+    '.panel{position:absolute;bottom:72px;' + (rtl ? 'left:0;' : 'right:0;') + 'width:min(370px,calc(100vw - 32px));height:min(540px,calc(100vh - 110px));background:#fff;color:#14211E;border-radius:16px;box-shadow:0 12px 40px rgba(0,0,0,.25);display:none;flex-direction:column;overflow:hidden}',
     '.panel.open{display:flex}',
     '.head{background:var(--c);color:#fff;padding:14px 16px;display:flex;align-items:center;gap:10px;font-weight:700;font-size:15px}',
     '.head span{flex:1}',
@@ -35,6 +37,7 @@
     '.them{align-self:flex-start;background:#fff;border:1px solid #DCE3E1}',
     '.me{align-self:flex-end;background:var(--c);color:#fff}',
     '.typing{opacity:.6}',
+    '.m img{display:block;max-width:100%;border-radius:10px}',
     'form{display:flex;gap:8px;padding:10px;border-top:1px solid #DCE3E1;background:#fff}',
     'textarea{flex:1;resize:none;border:1px solid #DCE3E1;border-radius:10px;padding:9px 11px;font-size:14px;height:42px;max-height:110px;color:#14211E;background:#fff}',
     'textarea:focus{outline:none;border-color:var(--c)}',
@@ -70,11 +73,19 @@
     if (cfg.color) host.style.setProperty('--c', cfg.color);
   }).catch(function () {});
 
-  function bubble(cls, text) {
+  function bubble(cls, text, image) {
     var d = document.createElement('div');
     d.className = 'm ' + cls;
     d.dir = 'auto';
-    d.textContent = text;
+    if (image) {
+      var img = document.createElement('img');
+      img.src = /^https?:/.test(image) ? image : new URL(BASE).origin + image;
+      img.alt = '';
+      img.onload = function () { msgs.scrollTop = msgs.scrollHeight; };
+      d.appendChild(img);
+    } else {
+      d.textContent = text;
+    }
     msgs.appendChild(d);
     msgs.scrollTop = msgs.scrollHeight;
     return d;
@@ -89,7 +100,7 @@
         lastCount = list.length;
         msgs.innerHTML = '';
         if (greeting) bubble('them', greeting);
-        list.forEach(function (m) { bubble(m.from, m.text); });
+        list.forEach(function (m) { bubble(m.from, m.text, m.image); });
       }).catch(function () {});
   }
 
@@ -126,6 +137,7 @@
       body: JSON.stringify({ visitor: visitor, text: text }),
     }).then(function (r) { return r.json(); }).then(function (data) {
       typing.remove();
+      (data.images || []).forEach(function (img) { bubble('them', '', img.url); });
       if (data.reply) bubble('them', data.reply);
       else if (data.error) bubble('them', data.error);
     }).catch(function () {

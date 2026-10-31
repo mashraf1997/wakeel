@@ -17,6 +17,10 @@ services:
       - NODE_ENV=production
       - SETUP_TOKEN=${SETUP_TOKEN:-}
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - AGENCY_PASSWORD=${AGENCY_PASSWORD:-}
+      - TRANSCRIBE_BASE_URL=${TRANSCRIBE_BASE_URL:-}
+      - TRANSCRIBE_MODEL=${TRANSCRIBE_MODEL:-}
+      - TRANSCRIBE_API_KEY=${TRANSCRIBE_API_KEY:-}
     volumes:
       - wakeel-data:/data
 

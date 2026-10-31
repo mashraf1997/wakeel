@@ -26,7 +26,7 @@ export class AIError extends Error {
 /**
  * Run one assistant turn with tools.
  * @param {object} ai        settings.ai
- * @param {object} opts      { system: {stable, dynamic}, history: [{role:'user'|'assistant', text}], tools, executeTool }
+ * @param {object} opts      { system: {stable, dynamic}, history: [{role:'user'|'assistant', text, images?:[{mime,data}]}], tools, executeTool }
  * @returns {Promise<string>} final reply text
  */
 export async function runTurn(ai, opts) {
@@ -47,14 +47,22 @@ function anthropicClient(ai) {
   return clients.get(key);
 }
 
+function anthropicContent(m) {
+  const blocks = (m.images || []).map((img) => ({ type: 'image', source: { type: 'base64', media_type: img.mime, data: img.data } }));
+  if (m.text) blocks.push({ type: 'text', text: m.text });
+  return blocks;
+}
+
 function toAnthropicMessages(history) {
   const out = [];
   for (const m of history) {
     const role = m.role === 'assistant' ? 'assistant' : 'user';
     if (!out.length && role === 'assistant') continue; // must start with user
+    const content = anthropicContent(role === 'assistant' ? { text: m.text } : m);
+    if (!content.length) continue;
     const last = out[out.length - 1];
-    if (last && last.role === role) last.content += '\n' + m.text;
-    else out.push({ role, content: m.text });
+    if (last && last.role === role) last.content.push(...content);
+    else out.push({ role, content });
   }
   return out;
 }
@@ -128,7 +136,14 @@ async function runAnthropic(ai, { system, history, tools, executeTool }) {
 async function runOpenAI(ai, { system, history, tools, executeTool }) {
   const baseUrl = (ai.baseUrl || 'http://localhost:11434/v1').replace(/\/+$/, '');
   const messages = [{ role: 'system', content: [system.stable, system.dynamic].filter(Boolean).join('\n\n') }];
-  for (const m of history) messages.push({ role: m.role === 'assistant' ? 'assistant' : 'user', content: m.text });
+  for (const m of history) {
+    const role = m.role === 'assistant' ? 'assistant' : 'user';
+    if (role === 'user' && m.images?.length && ai.vision) {
+      messages.push({ role, content: [{ type: 'text', text: m.text || '' }, ...m.images.map((img) => ({ type: 'image_url', image_url: { url: `data:${img.mime};base64,${img.data}` } }))] });
+    } else {
+      messages.push({ role, content: m.text + (m.images?.length && !ai.vision ? ' [the customer sent a photo you cannot see; ask them to describe it]' : '') });
+    }
+  }
   const toolDefs = tools.map((t) => ({ type: 'function', function: { name: t.name, description: t.description, parameters: t.parameters } }));
 
   for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {

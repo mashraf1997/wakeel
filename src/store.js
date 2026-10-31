@@ -31,14 +31,36 @@ export function defaultData() {
         apiKey: '',
         baseUrl: '',
         effort: 'low',
+        vision: false, // OpenAI-compatible models only; Claude always sees images
       },
       channels: {
         telegram: { enabled: false, token: '' },
         whatsapp: { enabled: false, token: '', phoneNumberId: '', verifyToken: crypto.randomBytes(12).toString('hex'), appSecret: '' },
         instagram: { enabled: false, pageToken: '', verifyToken: '', appSecret: '' },
+        messenger: { enabled: false, pageToken: '', verifyToken: '', appSecret: '' },
       },
       widget: { color: '#0F766E', greeting: '', title: '' },
+      // Speech-to-text for voice notes (any OpenAI-compatible /audio/transcriptions API)
+      transcription: { baseUrl: '', apiKey: '', model: '' },
+      notify: {
+        linkCode: crypto.randomBytes(6).toString('hex'),
+        telegramChats: [], // owner chat ids linked with /start <linkCode>
+        webhookUrl: '',
+        events: { order: true, booking: true, handoff: true, error: true },
+      },
+      catalog: { source: 'none', url: '', intervalMinutes: 60 }, // none | dukkan | woocommerce | shopify
+      calendar: {
+        enabled: false,
+        icsUrl: '',
+        timezone: '',
+        open: '10:00',
+        close: '22:00',
+        closedDays: [], // 0 = Sunday ... 6 = Saturday
+        slotMinutes: 30,
+      },
     },
+    catalog: { products: [], shop: null, syncedAt: null, error: null },
+    library: [], // owner images the assistant may send: { id, name, file, mime, createdAt }
     knowledge: [], // { id, title, text, createdAt }
     conversations: {}, // id -> conversation
     requests: [], // orders and bookings
@@ -138,6 +160,26 @@ export class Store {
     this.data.requests.unshift(r);
     this.save();
     return r;
+  }
+
+  // ---------- media files ----------
+  get mediaDir() {
+    const dir = path.join(this.dataDir, 'media');
+    fs.mkdirSync(dir, { recursive: true });
+    return dir;
+  }
+
+  saveMedia(buffer, mime) {
+    const ext = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'image/gif': 'gif', 'audio/ogg': 'ogg', 'audio/mpeg': 'mp3', 'audio/mp4': 'm4a', 'audio/aac': 'aac', 'audio/webm': 'webm', 'audio/wav': 'wav' }[String(mime).split(';')[0]] || 'bin';
+    const file = `${crypto.randomUUID()}.${ext}`;
+    fs.writeFileSync(path.join(this.mediaDir, file), buffer);
+    return file;
+  }
+
+  mediaPath(file) {
+    if (!/^[\w-]+\.[a-z0-9]+$/.test(file || '')) return null;
+    const full = path.join(this.mediaDir, file);
+    return fs.existsSync(full) ? full : null;
   }
 
   // ---------- knowledge ----------

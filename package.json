@@ -1,6 +1,6 @@
 {
   "name": "wakeel",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Open-source AI employee for small businesses. Answers customers on WhatsApp, Instagram, Telegram and your website, takes orders and bookings, and hands off to a human when needed.",
   "type": "module",
   "main": "server.js",

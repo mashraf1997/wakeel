@@ -63,6 +63,39 @@
       ago_now: 'now', ago_m: 'm', ago_h: 'h', ago_d: 'd',
     },
   };
+  const MORE = {
+    ar: {
+      bizType: 'نوع البيزنس', tplNone: 'غير ده / هبدأ من الصفر', tpl_restaurant: 'مطعم أو كافيه', tpl_clinic: 'عيادة', tpl_salon: 'صالون أو سبا', tpl_store: 'متجر أونلاين', tplHint: 'هنملالك منيو ومعلومات تجريبية تعدّلها براحتك', replyLang: 'لغة المحتوى التجريبي',
+      fillTemplate: 'املا من قالب جاهز', fillConfirm: 'هيتحط محتوى القالب مكان الوصف والمواعيد والأسعار والسياسات. تكمّل؟', apply: 'تطبيق',
+      catalogTitle: 'مزامنة المنتجات من متجرك', catalogLead: 'لو عندك متجر Dukkan أو WooCommerce أو Shopify، الوكيل هيقرا المنتجات والأسعار والمخزون منه تلقائياً كل ساعة.', source: 'المصدر', srcNone: 'مفيش', storeUrl: 'رابط المتجر', syncNow: 'زامن دلوقتي', products_n: 'منتج', lastSync: 'آخر مزامنة', dukkanNote: 'مع Dukkan الطلبات بتتسجل في المتجر نفسه برقم الطلب والإجمالي الحقيقي.',
+      libTitle: 'صور يقدر الوكيل يبعتها', libLead: 'زي صورة المنيو أو قائمة الأسعار. لو العميل طلبها الوكيل يبعتها على طول.', imgName: 'اسم الصورة', imgNamePh: 'مثلاً: المنيو', upload: 'رفع صورة', noImages: 'مفيش صور لسه.',
+      calTitle: 'المواعيد والحجوزات', calLead: 'الوكيل يعرض المواعيد الفاضية بس ومايحجزش ميعاد محجوز.', calOn: 'تفعيل نظام المواعيد', open: 'بيفتح', close: 'بيقفل', slot: 'مدة الميعاد (دقيقة)', closedDays: 'أيام الإجازة', tz: 'المنطقة الزمنية', ics: 'رابط iCal السري (اختياري)', icsHint: 'من Google Calendar ثم الإعدادات ثم «العنوان السري بتنسيق iCal». المواعيد المحجوزة في التقويم هتتقفل تلقائياً.', checkDay: 'شوف المواعيد الفاضية', freeSlots: 'مواعيد فاضية', noSlots: 'مفيش مواعيد فاضية',
+      days: ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'],
+      msTitle: 'فيسبوك ماسنجر', msLead: 'رسائل صفحتك على فيسبوك، على نفس رابط الـ Webhook.', msToken: 'Page access token',
+      msSteps: ['في نفس App بتاع Meta ضيف منتج Messenger', 'اربط صفحتك وانسخ Page access token', 'حط رابط الـ Webhook والـ Verify token، واشترك في messages'],
+      notifyTitle: 'الإشعارات', notifyLead: 'يوصلك تنبيه أول ما ييجي طلب أو حجز أو عميل محتاجك.', tgLink: 'إشعارات على تليجرام', tgLinkHint: 'افتح الرابط ده من موبايلك واضغط Start:', tgLinkNeed: 'وصّل بوت تليجرام الأول (تحت) عشان تستلم الإشعارات عليه.', linked: 'أجهزة مربوطة', unlink: 'فك الربط', hook: 'Webhook (لـ n8n أو Make أو Zapier)', events: 'ابعتلي لما', ev_order: 'طلب جديد', ev_booking: 'حجز جديد', ev_handoff: 'عميل محتاجني', ev_error: 'الوكيل يقع في مشكلة', testNotify: 'ابعت إشعار تجربة', browserNotify: 'إشعارات المتصفح', enableBrowser: 'فعّل إشعارات المتصفح', sent: 'اتبعت ✓',
+      voiceTitle: 'الرسائل الصوتية', voiceLead: 'الوكيل يحوّل الفويس لنص ويرد عليه. محتاج خدمة تحويل صوت لنص متوافقة مع OpenAI.', voiceHint: 'مثال مجاني: Groq بالرابط https://api.groq.com/openai/v1 والنموذج whisper-large-v3-turbo', vision: 'النموذج بيشوف الصور', visionHint: 'فعّلها لو النموذج بيدعم الصور (Claude بيدعمها دايماً)',
+      voiceNote: 'رسالة صوتية', newOrderAlert: 'طلب جديد!', attentionAlert: 'عميل محتاجك',
+      stepNotify: 'فعّل الإشعارات عشان ماتفوّتش طلب',
+    },
+    en: {
+      bizType: 'Business type', tplNone: 'Other / start empty', tpl_restaurant: 'Restaurant or café', tpl_clinic: 'Clinic', tpl_salon: 'Salon or spa', tpl_store: 'Online store', tplHint: 'We add a sample menu and info you can edit', replyLang: 'Sample content language',
+      fillTemplate: 'Fill from a template', fillConfirm: 'This replaces your description, hours, prices and policies with the template. Continue?', apply: 'Apply',
+      catalogTitle: 'Sync products from your store', catalogLead: 'If you run a Dukkan, WooCommerce or Shopify store, the assistant reads products, prices and stock from it every hour.', source: 'Source', srcNone: 'None', storeUrl: 'Store URL', syncNow: 'Sync now', products_n: 'products', lastSync: 'Last sync', dukkanNote: 'With Dukkan, orders are placed in your store with its real order number and total.',
+      libTitle: 'Images the assistant can send', libLead: 'For example your menu or price list. When a customer asks, the assistant sends it.', imgName: 'Image name', imgNamePh: 'e.g. Menu', upload: 'Upload image', noImages: 'No images yet.',
+      calTitle: 'Appointments', calLead: 'The assistant offers only free times and never double-books.', calOn: 'Turn on appointments', open: 'Opens', close: 'Closes', slot: 'Slot length (minutes)', closedDays: 'Closed days', tz: 'Time zone', ics: 'Secret iCal address (optional)', icsHint: 'In Google Calendar: Settings → your calendar → “Secret address in iCal format”. Busy times there are blocked automatically.', checkDay: 'Check free times', freeSlots: 'Free times', noSlots: 'No free times',
+      days: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+      msTitle: 'Facebook Messenger', msLead: 'Messages to your Facebook Page, on the same webhook URL.', msToken: 'Page access token',
+      msSteps: ['In the same Meta app, add the Messenger product', 'Connect your Page and copy its Page access token', 'Set the webhook URL and verify token, subscribe to messages'],
+      notifyTitle: 'Notifications', notifyLead: 'Get an alert the moment an order, booking or customer needs you.', tgLink: 'Telegram alerts', tgLinkHint: 'Open this link on your phone and tap Start:', tgLinkNeed: 'Connect a Telegram bot first (below) to receive alerts there.', linked: 'Linked chats', unlink: 'Unlink all', hook: 'Webhook (for n8n, Make or Zapier)', events: 'Alert me about', ev_order: 'New orders', ev_booking: 'New bookings', ev_handoff: 'Customers who need me', ev_error: 'Assistant errors', testNotify: 'Send a test alert', browserNotify: 'Browser notifications', enableBrowser: 'Turn on browser notifications', sent: 'Sent ✓',
+      voiceTitle: 'Voice notes', voiceLead: 'The assistant transcribes voice notes and answers them. Needs an OpenAI-compatible speech-to-text API.', voiceHint: 'Free option: Groq at https://api.groq.com/openai/v1 with model whisper-large-v3-turbo', vision: 'Model can see images', visionHint: 'Turn on if your model supports images (Claude always does)',
+      voiceNote: 'Voice note', newOrderAlert: 'New order!', attentionAlert: 'A customer needs you',
+      stepNotify: 'Turn on notifications so you never miss an order',
+    },
+  };
+  Object.assign(STR.ar, MORE.ar);
+  Object.assign(STR.en, MORE.en);
+  const BASE = location.pathname.replace(/\/[^/]*$/, '');
   let lang = safeGet('wk_lang') || 'ar';
   const t = (k) => (STR[lang][k] ?? STR.en[k] ?? k);
 
@@ -76,7 +109,7 @@
   const app = document.getElementById('app');
 
   async function api(path, opts = {}) {
-    const res = await fetch(path, {
+    const res = await fetch(BASE + path, {
       method: opts.method || 'GET',
       headers: opts.body !== undefined ? { 'content-type': 'application/json' } : {},
       body: opts.body !== undefined ? JSON.stringify(opts.body) : undefined,
@@ -105,7 +138,8 @@
     return Math.floor(s / 86400) + t('ago_d');
   }
   const time = (iso) => new Date(iso).toLocaleString(lang === 'ar' ? 'ar-EG' : 'en-GB', { dateStyle: 'medium', timeStyle: 'short' });
-  const chIcon = (c) => `<span class="ch ${esc(c)}" aria-label="${esc(c)}">${{ whatsapp: 'WA', instagram: 'IG', telegram: 'TG', web: 'WEB', test: 'T' }[c] || '?'}</span>`;
+  const convName = (c) => c.name || (c.channel === 'web' ? `${lang === 'ar' ? 'زائر الموقع' : 'Website visitor'} · ${String(c.externalId).slice(-4)}` : c.externalId);
+  const chIcon = (c) => `<span class="ch ${esc(c)}" aria-label="${esc(c)}">${{ whatsapp: 'WA', instagram: 'IG', messenger: 'FB', telegram: 'TG', web: 'WEB', test: 'T' }[c] || '?'}</span>`;
 
   async function copyText(text, btn) {
     try { await navigator.clipboard.writeText(text); if (btn) { const o = btn.textContent; btn.textContent = t('copied'); setTimeout(() => (btn.textContent = o), 1500); } }
@@ -134,7 +168,7 @@
   // ------------------------------------------------------------------ auth screens
   function authFrame(inner) {
     app.innerHTML = `<div class="auth"><form class="card" id="authForm" novalidate>
-      <div class="brand"><img src="/favicon.svg" alt="">Wakeel <span class="muted small">وكيل</span></div>${inner}
+      <div class="brand"><img src="favicon.svg" alt="">Wakeel <span class="muted small">وكيل</span></div>${inner}
       <div class="err" id="authErr"></div>
       <div class="row"><button class="btn primary" type="submit" id="authBtn"></button><span class="spacer"></span><button class="btn sm" type="button" id="langBtn">${t('lang')}</button></div>
     </form></div>`;
@@ -144,13 +178,15 @@
   function renderSetup() {
     authFrame(`<div class="stack"><h1>${t('setupTitle')}</h1><p class="muted">${t('setupLead')}</p></div>
       <label class="field" for="f-bn">${t('businessName')}<input type="text" id="f-bn" autocomplete="organization"></label>
+      <label class="field" for="f-tpl">${t('bizType')} <span class="hint">${t('tplHint')}</span><select id="f-tpl">
+        ${(state.session.templates || []).map((k) => `<option value="${k}">${t('tpl_' + k)}</option>`).join('')}<option value="">${t('tplNone')}</option></select></label>
       <label class="field" for="f-pw">${t('password')} <span class="hint">${t('passwordHint')}</span><input type="password" id="f-pw" autocomplete="new-password" minlength="8" required></label>
       ${state.session.setupTokenRequired ? `<label class="field" for="f-st">${t('setupToken')}<input type="password" id="f-st" class="ltr"></label>` : ''}`);
     $('#authBtn').textContent = t('start');
     $('#authForm').onsubmit = async (e) => {
       e.preventDefault();
       try {
-        await api('/api/setup', { method: 'POST', body: { password: $('#f-pw').value, businessName: $('#f-bn').value, setupToken: $('#f-st')?.value } });
+        await api('/api/setup', { method: 'POST', body: { password: $('#f-pw').value, businessName: $('#f-bn').value, template: $('#f-tpl').value, lang, setupToken: $('#f-st')?.value } });
         location.hash = '#overview';
         boot();
       } catch (err) { $('#authErr').textContent = err.message; }
@@ -177,7 +213,7 @@
     const navItems = PAGES.map((p) => `<a class="nav" href="#${p}" data-page="${p}"><span>${t(p)}</span><span class="badge" data-badge="${p}" hidden></span></a>`).join('');
     app.innerHTML = `<div class="shell">
       <nav class="rail" aria-label="Main">
-        <div class="brand"><img src="/favicon.svg" alt="">Wakeel</div>
+        <div class="brand"><img src="favicon.svg" alt="">Wakeel</div>
         ${navItems}
         <div class="rail-foot">
           <button class="nav" type="button" id="langBtn">${t('lang')}</button>
@@ -214,7 +250,29 @@
       const set = (p, n) => { $$(`[data-badge="${p}"]`).forEach((b) => { b.hidden = !n; b.textContent = n; }); };
       set('inbox', o.needsAttention);
       set('requests', o.pendingRequests);
+      const prev = state.lastCounts;
+      state.lastCounts = { pending: o.pendingRequests, attention: o.needsAttention, latest: o.latestPendingId };
+      if (prev && (o.latestPendingId !== prev.latest && o.pendingRequests >= prev.pending && o.latestPendingId)) alertOwner(t('newOrderAlert'), '#requests');
+      else if (prev && o.needsAttention > prev.attention) alertOwner(t('attentionAlert'), '#inbox');
     } catch { /* ignore */ }
+  }
+
+  function alertOwner(text, hash) {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const o = ctx.createOscillator(); const g = ctx.createGain();
+      o.connect(g); g.connect(ctx.destination); o.frequency.value = 880; g.gain.value = 0.08;
+      o.start(); o.stop(ctx.currentTime + 0.18);
+    } catch { /* audio blocked */ }
+    document.title = '(!) Wakeel';
+    setTimeout(() => (document.title = 'Wakeel'), 8000);
+    try {
+      if ('Notification' in window && Notification.permission === 'granted') {
+        const n = new Notification('Wakeel', { body: text, icon: 'favicon.svg' });
+        n.onclick = () => { window.focus(); location.hash = hash; n.close(); };
+      }
+    } catch { /* not allowed */ }
+    toast(text);
   }
 
   async function poll() {
@@ -234,6 +292,7 @@
       [o.aiReady, t('stepAI'), '#ai'],
       [o.profileReady, t('stepInfo'), '#knowledge'],
       [anyChannel, t('stepChannel'), '#channels'],
+      [o.notifyReady, t('stepNotify'), '#channels'],
       [o.botReplies7d > 0, t('stepTest'), '#ai'],
     ];
     const max = Math.max(1, ...o.perDay.map((d) => d.count));
@@ -264,6 +323,7 @@
           <div class="stack">
             ${chRow('whatsapp', 'WhatsApp', ch.whatsapp)}
             ${chRow('instagram', 'Instagram', ch.instagram)}
+            ${chRow('messenger', 'Messenger', ch.messenger)}
             ${chRow('telegram', 'Telegram', ch.telegram)}
             ${chRow('web', lang === 'ar' ? 'شات الموقع' : 'Website chat', ch.web)}
           </div>
@@ -293,10 +353,10 @@
     if (!items) return;
     const { conversations } = await api('/api/conversations');
     const q = state.convFilter.trim().toLowerCase();
-    const list = conversations.filter((c) => !q || (c.name || c.externalId).toLowerCase().includes(q) || (c.lastMessage?.text || '').toLowerCase().includes(q));
+    const list = conversations.filter((c) => !q || convName(c).toLowerCase().includes(q) || (c.lastMessage?.text || '').toLowerCase().includes(q));
     items.innerHTML = list.length ? list.map((c) => `<button class="conv" data-id="${esc(c.id)}" aria-current="${c.id === state.currentConv}">
         ${chIcon(c.channel)}
-        <span style="min-width:0"><span class="name" style="display:block">${esc(c.name || c.externalId)}</span><span class="preview" style="display:block">${esc(c.lastMessage?.text || '')}</span></span>
+        <span style="min-width:0"><span class="name" style="display:block">${esc(convName(c))}</span><span class="preview" style="display:block">${esc(c.lastMessage?.text || '')}</span></span>
         <span class="meta"><span>${c.lastMessage ? ago(c.lastMessage.at) : ''}</span>${c.needsAttention ? '<span class="flag" title="!"></span>' : c.unread ? `<span class="badge" style="background:var(--accent)">${c.unread}</span>` : ''}</span>
       </button>`).join('') : `<div class="empty small">${t('noConvs')}</div>`;
     $$('.conv', items).forEach((b) => (b.onclick = () => { state.currentConv = b.dataset.id; history.replaceState(null, '', '#inbox'); $('#inbox').classList.add('open'); refreshInbox(); }));
@@ -317,14 +377,14 @@
     const human = c.mode === 'human';
     el.innerHTML = `<div class="thread-head">
         <button class="btn sm mobile-only" id="backBtn" type="button">${t('back')}</button>
-        ${chIcon(c.channel)}<h2>${esc(c.name || c.externalId)}</h2>
+        ${chIcon(c.channel)}<h2>${esc(convName(c))}</h2>
         <span class="pill ${human ? 'warn' : 'good'}">${human ? t('modeHuman') : t('modeBot')}</span>
         <span class="spacer"></span>
         <button class="btn sm" id="modeBtn" type="button">${human ? t('handBack') : t('takeOver')}</button>
         <button class="btn sm danger" id="delBtn" type="button">${t('del')}</button>
       </div>
       <div class="msgs" id="msgs" data-count="${c.messages.length}" data-mode="${c.mode}">
-        ${c.messages.map((m) => `<div class="msg ${m.role}">${esc(m.text)}<small>${m.role === 'owner' ? (lang === 'ar' ? 'إنت · ' : 'You · ') : m.role === 'bot' ? (lang === 'ar' ? 'الوكيل · ' : 'Assistant · ') : ''}${time(m.at)}</small></div>`).join('')}
+        ${c.messages.map((m) => `<div class="msg ${m.role}">${msgBody(m)}<small>${m.role === 'owner' ? (lang === 'ar' ? 'إنت · ' : 'You · ') : m.role === 'bot' ? (lang === 'ar' ? 'الوكيل · ' : 'Assistant · ') : ''}${time(m.at)}</small></div>`).join('')}
         ${c.handoffReason && human ? `<div class="notice">${t('handedOff')}: ${esc(c.handoffReason)}</div>` : ''}
         ${c.lastError ? `<div class="notice">${t('aiError')}${esc(c.lastError.message)}</div>` : ''}
       </div>
@@ -348,6 +408,15 @@
       try { await api('/api/conversations/' + encodeURIComponent(c.id) + '/reply', { method: 'POST', body: { text } }); box.value = ''; await refreshInbox(); $('#replyBox')?.focus(); }
       catch (err) { toast(err.message); box.disabled = false; }
     };
+  }
+
+  function msgBody(m) {
+    if (m.imageUrl) return `<img class="att" src="${esc(BASE ? m.imageUrl.slice(BASE.length).replace(/^\//, '') : m.imageUrl.replace(/^\//, ''))}" alt="${esc(m.text)}">`;
+    let out = '';
+    if (m.image) out += `<a href="${esc('api/media/' + m.image)}" target="_blank" rel="noopener"><img class="att" src="${esc('api/media/' + m.image)}" alt=""></a>`;
+    if (m.audio) out += `<audio class="att" controls preload="none" src="${esc('api/media/' + m.audio)}"></audio>`;
+    if (m.text && m.text !== '📷') out += `<div>${esc(m.text)}</div>`;
+    return out || esc(m.text);
   }
 
   function confirmDialog(message, onYes) {
@@ -405,7 +474,8 @@
     const fld = (id, label, hint, type = 'text') => `<label class="field" for="p-${id}">${t(label)}${hint ? ` <span class="hint">${t(hint)}</span>` : ''}
       ${type === 'area' ? `<textarea id="p-${id}">${esc(p[id])}</textarea>` : `<input type="text" id="p-${id}" value="${esc(p[id])}">`}</label>`;
     main.innerHTML = `<div class="page">
-      <div class="page-head"><div><h1>${t('knowledge')}</h1><p>${t('profileLead')}</p></div></div>
+      <div class="page-head"><div><h1>${t('knowledge')}</h1><p>${t('profileLead')}</p></div>
+        <div class="row"><select id="tplPick" aria-label="${t('fillTemplate')}">${['restaurant', 'clinic', 'salon', 'store'].map((k) => `<option value="${k}" ${p.businessType === k ? 'selected' : ''}>${t('tpl_' + k)}</option>`).join('')}</select><button class="btn" id="tplBtn" type="button">${t('fillTemplate')}</button></div></div>
       <form class="card" id="profileForm">
         <h2>${t('profileTitle')}</h2>
         <div class="grid2">${fld('businessName', 'businessName')}${fld('phone', 'phone')}</div>
@@ -426,9 +496,12 @@
           <label class="field" for="d-text">${t('docText')}<textarea id="d-text"></textarea></label>
           <div class="row"><button class="btn" type="submit">${t('addDoc')}</button></div>
         </form>
-        <div id="docs">${knowledge.length ? knowledge.map((k) => `<div class="doc"><div><h3>${esc(k.title)}</h3><p>${esc(k.text)}</p><span class="muted small">${k.length.toLocaleString()} ${t('chars')}</span></div><button class="btn sm danger" data-del="${esc(k.id)}" type="button">${t('del')}</button></div>`).join('') : `<p class="muted">${t('noDocs')}</p>`}</div>
+        <div id="docs" data-x>${knowledge.length ? knowledge.map((k) => `<div class="doc"><div><h3>${esc(k.title)}</h3><p>${esc(k.text)}</p><span class="muted small">${k.length.toLocaleString()} ${t('chars')}</span></div><button class="btn sm danger" data-del="${esc(k.id)}" type="button">${t('del')}</button></div>`).join('') : `<p class="muted">${t('noDocs')}</p>`}</div>
       </section>
+      <div id="kExtras" class="stack" style="gap:22px"></div>
     </div>`;
+    $('#tplBtn').onclick = () => confirmDialog(t('fillConfirm'), async () => { await api('/api/template', { method: 'POST', body: { template: $('#tplPick').value, lang, overwrite: true } }); pageKnowledge(main); toast(t('saved')); });
+    renderKnowledgeExtras($('#kExtras'));
     $('#profileForm').onsubmit = async (e) => {
       e.preventDefault();
       const body = {};
@@ -459,12 +532,89 @@
     drop.ondrop = (e) => { e.preventDefault(); drop.classList.remove('over'); upload([...e.dataTransfer.files]); };
   }
 
+  // ------------------------------------------------------------------ catalog, image library, appointments
+  async function renderKnowledgeExtras(box) {
+    const [{ settings: s }, cat, { library }] = await Promise.all([api('/api/settings'), api('/api/catalog'), api('/api/library')]);
+    const c = s.catalog, cal = s.calendar;
+    const catStatus = (x) => x.error ? `<span class="pill bad" title="${esc(x.error)}">${esc(x.error)}</span>` : x.syncedAt ? `<span class="pill good">${x.count} ${t('products_n')}</span> <span class="muted small">${t('lastSync')}: ${time(x.syncedAt)}</span>` : '';
+    const tzs = (() => { try { return Intl.supportedValuesOf('timeZone'); } catch { return []; } })();
+    box.innerHTML = `
+      <section class="card">
+        <div><h2>${t('catalogTitle')}</h2><p class="muted small">${t('catalogLead')}</p></div>
+        <div class="grid2">
+          <label class="field" for="c-src">${t('source')}<select id="c-src">
+            ${[['none', t('srcNone')], ['dukkan', 'Dukkan'], ['woocommerce', 'WooCommerce'], ['shopify', 'Shopify']].map(([v, l]) => `<option value="${v}" ${c.source === v ? 'selected' : ''}>${l}</option>`).join('')}</select></label>
+          <label class="field" for="c-url">${t('storeUrl')}<input type="text" id="c-url" class="ltr" value="${esc(c.url)}" placeholder="https://shop.example.com"></label>
+        </div>
+        <p class="muted small" id="c-note">${c.source === 'dukkan' ? t('dukkanNote') : ''}</p>
+        <div class="row"><button class="btn primary" id="c-save" type="button">${t('save')}</button><button class="btn" id="c-sync" type="button">${t('syncNow')}</button><span id="c-status">${catStatus(cat)}</span></div>
+        <div class="small muted" id="c-sample">${(cat.sample || []).map((x) => esc(x.name)).join(' · ')}</div>
+      </section>
+
+      <section class="card">
+        <div><h2>${t('libTitle')}</h2><p class="muted small">${t('libLead')}</p></div>
+        <div class="row"><input type="text" id="l-name" placeholder="${t('imgNamePh')}" aria-label="${t('imgName')}" style="max-width:240px"><button class="btn" id="l-up" type="button">${t('upload')}</button><input type="file" id="l-file" accept="image/jpeg,image/png,image/webp" hidden></div>
+        <div class="lib">${library.length ? library.map((l) => `<figure><img src="${esc(l.url.slice(BASE.length).replace(/^\//, ''))}" alt="${esc(l.name)}"><figcaption><span>${esc(l.name)}</span><button class="btn sm danger" data-lib="${esc(l.id)}" type="button">${t('del')}</button></figcaption></figure>`).join('') : `<p class="muted">${t('noImages')}</p>`}</div>
+      </section>
+
+      <section class="card">
+        <div><h2>${t('calTitle')}</h2><p class="muted small">${t('calLead')}</p></div>
+        <label class="switch"><input type="checkbox" id="cal-on" ${cal.enabled ? 'checked' : ''}>${t('calOn')}</label>
+        <div class="grid4">
+          <label class="field" for="cal-open">${t('open')}<input type="time" id="cal-open" value="${esc(cal.open)}"></label>
+          <label class="field" for="cal-close">${t('close')}<input type="time" id="cal-close" value="${esc(cal.close)}"></label>
+          <label class="field" for="cal-slot">${t('slot')}<input type="number" id="cal-slot" min="10" step="5" value="${esc(cal.slotMinutes)}"></label>
+          <label class="field" for="cal-tz">${t('tz')}<input type="text" id="cal-tz" class="ltr" list="tzList" value="${esc(cal.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone)}"></label>
+        </div>
+        <datalist id="tzList">${tzs.map((z) => `<option value="${z}">`).join('')}</datalist>
+        <div class="field">${t('closedDays')}<div class="days">${t('days').map((d, i) => `<label><input type="checkbox" value="${i}" ${cal.closedDays.map(Number).includes(i) ? 'checked' : ''}>${d}</label>`).join('')}</div></div>
+        <label class="field" for="cal-ics">${t('ics')} <span class="hint">${t('icsHint')}</span><input type="text" id="cal-ics" class="ltr" value="${esc(cal.icsUrl)}" placeholder="https://calendar.google.com/calendar/ical/.../basic.ics"></label>
+        <div class="row"><button class="btn primary" id="cal-save" type="button">${t('save')}</button><span class="spacer"></span><input type="date" id="cal-day" value="${new Date().toISOString().slice(0, 10)}" aria-label="date"><button class="btn" id="cal-check" type="button">${t('checkDay')}</button></div>
+        <div class="slots" id="cal-slots"></div>
+      </section>`;
+
+    const saveSettings = (settings) => api('/api/settings', { method: 'PUT', body: { settings } });
+    $('#c-src').onchange = () => { $('#c-note').textContent = $('#c-src').value === 'dukkan' ? t('dukkanNote') : ''; };
+    $('#c-save').onclick = async () => { try { await saveSettings({ catalog: { source: $('#c-src').value, url: $('#c-url').value } }); toast(t('saved')); setTimeout(() => renderKnowledgeExtras(box), 2500); } catch (e) { toast(e.message); } };
+    $('#c-sync').onclick = async (ev) => {
+      ev.target.disabled = true;
+      try { const r = await api('/api/catalog/sync', { method: 'POST', body: {} }); $('#c-status').innerHTML = catStatus(r); $('#c-sample').textContent = (r.sample || []).map((x) => x.name).join(' · '); }
+      catch (e) { toast(e.message); }
+      ev.target.disabled = false;
+    };
+    $('#l-up').onclick = () => { if (!$('#l-name').value.trim()) { $('#l-name').focus(); return toast(t('imgNamePh')); } $('#l-file').click(); };
+    $('#l-file').onchange = async () => {
+      const f = $('#l-file').files[0];
+      if (!f) return;
+      const data = await new Promise((r) => { const fr = new FileReader(); fr.onload = () => r(String(fr.result).split(',')[1]); fr.readAsDataURL(f); });
+      try { await api('/api/library', { method: 'POST', body: { name: $('#l-name').value, mime: f.type, data } }); renderKnowledgeExtras(box); } catch (e) { toast(e.message); }
+    };
+    $$('[data-lib]', box).forEach((b) => (b.onclick = async () => { await api('/api/library/' + b.dataset.lib, { method: 'DELETE', body: {} }); renderKnowledgeExtras(box); }));
+    $('#cal-save').onclick = async () => {
+      try {
+        await saveSettings({ calendar: {
+          enabled: $('#cal-on').checked, open: $('#cal-open').value, close: $('#cal-close').value, slotMinutes: Number($('#cal-slot').value) || 30,
+          timezone: $('#cal-tz').value, icsUrl: $('#cal-ics').value, closedDays: $$('.days input:checked', box).map((i) => Number(i.value)),
+        } });
+        toast(t('saved'));
+      } catch (e) { toast(e.message); }
+    };
+    $('#cal-check').onclick = async () => {
+      try {
+        const r = await api('/api/availability?date=' + encodeURIComponent($('#cal-day').value));
+        $('#cal-slots').innerHTML = r.slots.length ? r.slots.map((x) => `<span>${esc(x)}</span>`).join('') : `<p class="muted small">${t('noSlots')}${r.reason ? ' · ' + esc(r.reason) : ''}</p>`;
+      } catch (e) { toast(e.message); }
+    };
+  }
+
   // ------------------------------------------------------------------ channels
   async function pageChannels(main) {
-    const [{ settings: s, webhookPath }, { channels: st }] = await Promise.all([api('/api/settings'), api('/api/channels')]);
-    const c = s.channels;
+    const [{ settings: s, webhookPath, telegramBot }, { channels: st }] = await Promise.all([api('/api/settings'), api('/api/channels')]);
+    const c = s.channels, n = s.notify;
     const origin = location.origin;
-    const embed = `<script src="${origin}/widget.js" async></script>`;
+    const embed = `<script src="${origin}${BASE}/widget.js" async></script>`;
+    const tgLink = telegramBot ? `https://t.me/${telegramBot}?start=${n.linkCode}` : '';
+    const perm = 'Notification' in window ? Notification.permission : 'unsupported';
     const webhook = origin + webhookPath;
     const statusPill = (x) => x.error ? `<span class="pill bad" title="${esc(x.error)}">${t('error')}</span>` : (x.connected || x.configured) ? `<span class="pill good">${x.username ? '@' + esc(x.username) : t('configured')}</span>` : `<span class="pill off">${t('notConnected')}</span>`;
     const inp = (id, label, value, ltr = true) => `<label class="field" for="${id}">${t(label)}<input type="text" id="${id}" class="${ltr ? 'ltr' : ''}" value="${esc(value)}" autocomplete="off" spellcheck="false"></label>`;
@@ -472,6 +622,16 @@
     const steps = (key) => `<details class="steps"><summary>${lang === 'ar' ? 'إزاي أوصّلها؟' : 'How to connect'}</summary><ol>${t(key).map((x) => `<li>${esc(x)}</li>`).join('')}</ol></details>`;
     main.innerHTML = `<div class="page">
       <div class="page-head"><h1>${t('channels')}</h1></div>
+      <section class="card" id="notify">
+        <div><h2>${t('notifyTitle')}</h2><p class="muted small">${t('notifyLead')}</p></div>
+        <div class="field">${t('tgLink')}
+          ${tgLink ? `<span class="hint">${t('tgLinkHint')}</span>${copyRow(tgLink, 'tgLinkUrl')}<div class="row small"><span class="muted">${t('linked')}: ${n.telegramChats.length}</span>${n.telegramChats.length ? `<button class="btn sm danger" id="unlinkBtn" type="button">${t('unlink')}</button>` : ''}</div>` : `<span class="hint">${t('tgLinkNeed')}</span>`}
+        </div>
+        ${inp('n-hook', 'hook', n.webhookUrl)}
+        <div class="field">${t('events')}<div class="checks">${['order', 'booking', 'handoff', 'error'].map((e) => `<label><input type="checkbox" data-ev="${e}" ${n.events[e] ? 'checked' : ''}>${t('ev_' + e)}</label>`).join('')}</div></div>
+        <div class="row"><button class="btn" id="testNotify" type="button">${t('testNotify')}</button>
+          ${perm === 'default' ? `<button class="btn" id="browserNotify" type="button">${t('enableBrowser')}</button>` : perm === 'granted' ? `<span class="pill good">${t('browserNotify')}</span>` : ''}</div>
+      </section>
       <section class="card"><div class="card-head"><div class="row">${chIcon('web')}<h2>${t('webTitle')}</h2></div><span class="pill good">${t('connected')}</span></div>
         <p class="muted small">${esc(t('webLead'))}</p>${copyRow(embed, 'embedCode')}
         <div class="grid2">${inp('w-title', 'widgetTitle', s.widget.title, false)}${inp('w-greeting', 'greeting', s.widget.greeting, false)}</div>
@@ -496,6 +656,13 @@
         ${inp('ig-secret', 'appSecret', c.instagram.appSecret)}
         <label class="switch"><input type="checkbox" id="ig-on" ${c.instagram.enabled ? 'checked' : ''}>${t('enable')}</label>
       </section>
+      <section class="card"><div class="card-head"><div class="row">${chIcon('messenger')}<h2>${t('msTitle')}</h2></div>${statusPill(st.messenger)}</div>
+        <p class="muted small">${t('msLead')}</p>${steps('msSteps')}
+        <div class="field">${t('webhookUrl')}${copyRow(webhook, 'msHook')}</div>
+        <div class="grid2">${inp('ms-token', 'msToken', c.messenger.pageToken)}${inp('ms-verify', 'verifyToken', c.messenger.verifyToken || c.whatsapp.verifyToken)}</div>
+        ${inp('ms-secret', 'appSecret', c.messenger.appSecret)}
+        <label class="switch"><input type="checkbox" id="ms-on" ${c.messenger.enabled ? 'checked' : ''}>${t('enable')}</label>
+      </section>
       <div class="row" style="position:sticky;bottom:0;padding:12px 0;background:var(--bg)"><button class="btn primary" id="saveCh" type="button">${t('save')}</button></div>
     </div>`;
     $$('[data-copy]', main).forEach((b) => (b.onclick = () => copyText($('#' + b.dataset.copy).textContent, b)));
@@ -506,10 +673,17 @@
           telegram: { token: $('#tg-token').value, enabled: $('#tg-on').checked },
           whatsapp: { token: $('#wa-token').value, phoneNumberId: $('#wa-phone').value, verifyToken: $('#wa-verify').value, appSecret: $('#wa-secret').value, enabled: $('#wa-on').checked },
           instagram: { pageToken: $('#ig-token').value, verifyToken: $('#ig-verify').value, appSecret: $('#ig-secret').value, enabled: $('#ig-on').checked },
+          messenger: { pageToken: $('#ms-token').value, verifyToken: $('#ms-verify').value, appSecret: $('#ms-secret').value, enabled: $('#ms-on').checked },
         },
+        notify: { webhookUrl: $('#n-hook').value, events: Object.fromEntries($$('[data-ev]', main).map((i) => [i.dataset.ev, i.checked])) },
       } };
       try { await api('/api/settings', { method: 'PUT', body }); toast(t('saved')); setTimeout(() => pageChannels(main), 600); } catch (err) { toast(err.message); }
     };
+    $('#testNotify').onclick = async (ev) => {
+      try { await $('#saveCh').onclick(); await api('/api/notify/test', { method: 'POST', body: {} }); alertOwner(t('sent'), '#channels'); } catch (err) { toast(err.message); }
+    };
+    if ($('#unlinkBtn')) $('#unlinkBtn').onclick = async () => { await api('/api/notify/unlink', { method: 'POST', body: {} }); pageChannels(main); };
+    if ($('#browserNotify')) $('#browserNotify').onclick = async () => { try { await Notification.requestPermission(); } catch { /* ignore */ } pageChannels(main); };
   }
 
   // ------------------------------------------------------------------ AI + playground
@@ -536,6 +710,12 @@
           <label class="field" for="ai-model" id="modelFree">${t('model')}<input type="text" id="ai-model" class="ltr" value="${esc(ai.model)}" placeholder="qwen3:8b"></label>
           <label class="field" for="ai-key">${t('apiKey')}${s.aiKeyFromEnv ? ` <span class="hint">${t('keyFromEnv')}</span>` : ''}<input type="text" id="ai-key" class="ltr" value="${esc(ai.apiKey)}" autocomplete="off" spellcheck="false"></label>
           <label class="field" for="ai-base" id="baseField">${t('baseUrl')} <span class="hint">${t('baseUrlHint')}</span><input type="text" id="ai-base" class="ltr" value="${esc(ai.baseUrl)}" placeholder="https://openrouter.ai/api/v1"></label>
+          <label class="switch" id="visionField"><input type="checkbox" id="ai-vision" ${ai.vision ? 'checked' : ''}>${t('vision')}</label>
+          <hr style="border:0;border-top:1px solid var(--line);width:100%;margin:4px 0">
+          <div><h2>${t('voiceTitle')}</h2><p class="muted small">${t('voiceLead')}</p><p class="muted small mono">${esc(t('voiceHint'))}</p></div>
+          <div class="grid2"><label class="field" for="tr-base">${t('baseUrl')}<input type="text" id="tr-base" class="ltr" value="${esc(s.transcription.baseUrl)}" placeholder="https://api.groq.com/openai/v1"></label>
+            <label class="field" for="tr-model">${t('model')}<input type="text" id="tr-model" class="ltr" value="${esc(s.transcription.model)}" placeholder="whisper-large-v3-turbo"></label></div>
+          <label class="field" for="tr-key">${t('apiKey')}<input type="text" id="tr-key" class="ltr" value="${esc(s.transcription.apiKey)}" autocomplete="off" spellcheck="false"></label>
           <div class="row"><button class="btn primary" type="submit">${t('save')}</button></div>
         </form>
         <section class="card">
@@ -549,6 +729,7 @@
       const isClaude = $('#ai-provider').value === 'anthropic';
       $('#claudeFields').style.display = isClaude ? '' : 'none';
       $('#baseField').style.display = isClaude ? 'none' : '';
+      $('#visionField').style.display = isClaude ? 'none' : '';
       $('#modelFree').style.display = !isClaude || $('#ai-model-sel').value === '__custom' ? '' : 'none';
     };
     $('#ai-provider').onchange = sync;
@@ -564,7 +745,8 @@
         effort: $('#ai-effort').value,
         apiKey: $('#ai-key').value,
         baseUrl: isClaude ? '' : $('#ai-base').value,
-      } } };
+        vision: isClaude ? true : $('#ai-vision').checked,
+      }, transcription: { baseUrl: $('#tr-base').value, model: $('#tr-model').value, apiKey: $('#tr-key').value } } };
       try { await api('/api/settings', { method: 'PUT', body }); toast(t('saved')); } catch (err) { toast(err.message); }
     };
 
@@ -573,7 +755,7 @@
     const add = (cls, text) => { const d = document.createElement('div'); d.className = 'msg ' + cls; d.textContent = text; msgs.appendChild(d); msgs.scrollTop = msgs.scrollHeight; return d; };
     try {
       const { conversation } = await api('/api/conversations/' + encodeURIComponent('test:owner'));
-      conversation.messages.forEach((m) => add(m.role === 'customer' ? 'customer' : 'bot', m.text));
+      conversation.messages.forEach((m) => { const d = add(m.role === 'customer' ? 'customer' : 'bot', ''); d.innerHTML = msgBody(m); });
     } catch { /* no test chat yet */ }
     $('#playReset').onclick = async () => { await api('/api/playground', { method: 'POST', body: { reset: true } }); msgs.innerHTML = ''; };
     const box = $('#playBox');
@@ -588,6 +770,7 @@
       try {
         const out = await api('/api/playground', { method: 'POST', body: { text } });
         pending.textContent = out.reply || '';
+        for (const img of out.images || []) { const d = add('bot', ''); d.innerHTML = `<img class="att" src="${esc(img.url.slice(BASE.length).replace(/^\//, ''))}" alt="${esc(img.name)}">`; }
         if (out.error) { const n = document.createElement('div'); n.className = 'notice'; n.textContent = t('aiError') + out.error.message; msgs.appendChild(n); }
       } catch (err) { pending.textContent = err.message; }
       msgs.scrollTop = msgs.scrollHeight;

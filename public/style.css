@@ -77,7 +77,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 
 label.field { display: grid; gap: 6px; font-weight: 600; font-size: .92rem; }
 label.field .hint { font-weight: 400; color: var(--muted); font-size: .84rem; }
-input[type="text"], input[type="password"], input[type="url"], select, textarea {
+input[type="text"], input[type="password"], input[type="url"], input[type="time"], input[type="number"], input[type="date"], select, textarea {
   width: 100%; padding: 9px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); min-width: 0;
 }
 input:focus, select:focus, textarea:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 0 3px var(--accent-soft); }
@@ -190,3 +190,20 @@ details.steps ol { margin: 10px 0 0; padding-inline-start: 20px; display: grid; 
   .page { padding: 20px 16px 50px; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+.msg .att { display: block; max-width: 260px; max-height: 260px; border-radius: 10px; margin-bottom: 4px; }
+.msg audio.att { width: 260px; max-width: 100%; }
+.ch.messenger { background: #0866FF; }
+.lib { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+.lib figure { margin: 0; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--bg); display: grid; }
+.lib img { width: 100%; height: 120px; object-fit: cover; display: block; }
+.lib figcaption { display: flex; justify-content: space-between; align-items: center; gap: 6px; padding: 6px 8px; font-size: .86rem; }
+.days { display: flex; flex-wrap: wrap; gap: 6px; }
+.days label { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border: 1px solid var(--line); border-radius: 999px; cursor: pointer; font-size: .86rem; }
+.days input { margin: 0; accent-color: var(--accent); }
+.slots { display: flex; flex-wrap: wrap; gap: 6px; }
+.slots span { font-family: var(--mono); font-size: .82rem; padding: 3px 8px; border-radius: 6px; background: var(--accent-soft); color: var(--accent); }
+.checks { display: flex; flex-wrap: wrap; gap: 10px 18px; }
+.checks label { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+.checks input { accent-color: var(--accent); }
+.card > .pill { justify-self: start; }
+#add .grid2 { align-items: end; }
