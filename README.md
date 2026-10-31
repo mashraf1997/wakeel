@@ -5,7 +5,7 @@
 **An open-source AI employee for small businesses.**
 It answers your customers on WhatsApp, Instagram, Telegram and your website, 24/7, in their own dialect. It takes orders and bookings and hands the chat to you when a human is needed.
 
-<!-- Paste your "Deploy to Hostinger" button here after listing the app (it carries your referral code). -->
+[![Deploy on Hostinger](https://assets.hostinger.com/vps/deploy.svg)](https://www.hostinger.com/docker-hosting?compose_url=https://raw.githubusercontent.com/mashraf1997/wakeel/main/docker-compose.yml&REFERRALCODE=YOUR_REFERRAL_CODE)
 
 [English](#what-it-does) · [العربية](#بالعربي)
 
@@ -34,17 +34,14 @@ It answers your customers on WhatsApp, Instagram, Telegram and your website, 24/
 
 ### One click on Hostinger
 
-Click **Deploy to Hostinger** above, open the app's URL, and create your password. That's it.
-
-- **Node.js web app hosting:** runs `npm start`, no extra setup.
-- **VPS:** runs the Docker stack, with an option to add a local AI model through Ollama.
+Click **Deploy on Hostinger** above. Hostinger sets up a VPS with Docker and starts Wakeel. Open `http://YOUR-SERVER-IP` and create your password. That's it.
 
 ### Docker (any VPS)
 
 ```bash
-git clone https://github.com/YOUR-USER/wakeel.git && cd wakeel
+git clone https://github.com/mashraf1997/wakeel.git && cd wakeel
 cp .env.example .env        # optional: set SETUP_TOKEN and ANTHROPIC_API_KEY
-docker compose up -d
+docker compose up -d        # http://YOUR-SERVER-IP
 ```
 
 To run a private local model next to it:
@@ -63,7 +60,9 @@ npm install
 npm start          # http://localhost:3000
 ```
 
-Requires Node.js 20 or newer.
+Requires Node.js 20 or newer. Works on any Node.js hosting, including shared web app plans.
+
+To build the Docker image yourself instead of pulling it: `docker build -t ghcr.io/mashraf1997/wakeel:latest .`
 
 ## Connect your channels
 

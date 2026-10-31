@@ -1,21 +1,22 @@
-# Wakeel — one-click stack.
-#   Default:            docker compose up -d
-#   With a local model: docker compose --profile local-ai up -d
-#     (runs Ollama next to Wakeel; then pick "OpenAI-compatible" in the
-#      dashboard with Base URL http://ollama:11434/v1)
+# One-click deploy on a Hostinger VPS (Docker Manager), or anywhere with Docker:
+#   docker compose up -d
+# Then open http://YOUR-SERVER-IP and create your password.
+#
+# Optional private AI model running next to Wakeel:
+#   docker compose --profile local-ai up -d
+#   docker compose exec ollama ollama pull qwen3:8b
+#   then in the dashboard: AI model -> OpenAI-compatible, Base URL http://ollama:11434/v1
 services:
   wakeel:
-    build: .
-    image: wakeel:latest
+    image: ghcr.io/mashraf1997/wakeel:latest
+    container_name: wakeel
     restart: unless-stopped
     ports:
-      - "${PORT:-3000}:3000"
+      - "80:3000"
     environment:
+      - NODE_ENV=production
       - SETUP_TOKEN=${SETUP_TOKEN:-}
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
-      - AI_PROVIDER=${AI_PROVIDER:-}
-      - AI_MODEL=${AI_MODEL:-}
-      - AI_BASE_URL=${AI_BASE_URL:-}
     volumes:
       - wakeel-data:/data
 
