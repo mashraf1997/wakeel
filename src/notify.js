@@ -6,6 +6,9 @@ const LABELS = {
   booking: { ar: '📅 حجز جديد', en: '📅 New booking' },
   handoff: { ar: '🙋 عميل محتاج يكلمك', en: '🙋 A customer needs you' },
   error: { ar: '⚠️ الوكيل ماقدرش يرد', en: '⚠️ The assistant could not reply' },
+  payment: { ar: '💳 تم الدفع', en: '💳 Payment received' },
+  lowRating: { ar: '😟 تقييم منخفض', en: '😟 Low rating' },
+  summary: { ar: '📊 ملخص اليوم', en: '📊 Daily summary' },
 };
 
 export class Notifier {
@@ -39,7 +42,9 @@ export class Notifier {
     if (r?.phone) lines.push(`📞 ${r.phone}`);
     if (r) lines.push(`#${r.id}`);
     if (event === 'handoff' && c?.handoffReason) lines.push(c.handoffReason);
-    if (event === 'error' && payload.message) lines.push(payload.message);
+    if ((event === 'error' || event === 'lowRating') && payload.message) lines.push(payload.message);
+    if (event === 'payment' && r?.total) lines.push(`${L === 'ar' ? 'المبلغ' : 'Amount'}: ${r.total}`);
+    if (event === 'summary') return [LABELS.summary[L], payload.text].join('\n');
     const url = this.dashboardUrl();
     if (url) lines.push(url + (c ? `#inbox:${encodeURIComponent(c.id)}` : '#requests'));
     return lines.join('\n');
@@ -47,7 +52,7 @@ export class Notifier {
 
   async send(event, payload) {
     const cfg = this.config;
-    if (!cfg.events[event]) return;
+    if (cfg.events[event] === false) return;
     if (event === 'error') {
       // at most one error alert per conversation every 30 minutes
       const key = payload.conversation?.id || 'global';
@@ -66,6 +71,7 @@ export class Notifier {
         business: this.store.data.profile.businessName,
         text,
         request: payload.request || null,
+        stats: payload.stats || null,
         conversation: payload.conversation ? { id: payload.conversation.id, channel: payload.conversation.channel, name: payload.conversation.name, externalId: payload.conversation.externalId } : null,
         at: new Date().toISOString(),
       };

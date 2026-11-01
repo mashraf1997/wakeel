@@ -24,7 +24,12 @@ It answers your customers on WhatsApp, Instagram, Messenger, Telegram and your w
 - **Sends your menu.** Upload images like your menu or price list. When a customer asks, the assistant sends them.
 - **Takes orders and bookings.** It collects the details, confirms them with the customer and logs a request with a short reference such as `R7KQ2`. You confirm with one click, and the customer gets a message in the same channel. With Dukkan, orders go straight into your store with the real order number and total.
 - **Never double-books.** Set working hours and slot length, and optionally connect your Google Calendar's secret iCal address. The assistant offers only free times.
-- **Tells you right away.** New orders, bookings and customers who need you trigger alerts on Telegram, in the browser, or to any webhook (n8n, Make, Zapier).
+- **Tells you right away.** New orders, bookings and customers who need you trigger alerts on Telegram, in the browser, or to any webhook (n8n, Make, Zapier). A daily summary arrives at the hour you choose.
+- **Gets smarter every week.** Questions the assistant could not answer are collected in one list. Write the answer once and it knows it from then on.
+- **Wins back customers.** When someone asks prices and goes quiet, the assistant follows up once, politely, inside WhatsApp's 24-hour window.
+- **Gets paid.** Sends Stripe or Paymob payment links after an order. Stripe payments are confirmed automatically.
+- **Asks for ratings.** After an order is done, customers rate it from 1 to 5. Low ratings alert you right away.
+- **Works with your team.** Staff sign in with their own username and see only conversations and orders.
 - **Knows when to step back.** If the customer asks for a person, gets upset, or asks something the assistant can't answer, it hands the chat to you. You can take over any chat at any time.
 - **Speaks like your customers.** Replies in Egyptian, Gulf or Levantine Arabic, or in English, matching the customer. The dashboard is in Arabic and English.
 - **Your model, your choice.** Use Claude from Anthropic, or run a free open model with Ollama on your own VPS. Any OpenAI-compatible API also works (OpenRouter, Groq, DeepSeek, and others).
@@ -111,6 +116,19 @@ In **Channels → Notifications**:
 - **Browser:** keep the dashboard open in a tab and allow notifications to hear a sound and see an alert.
 - **Webhook:** every event is POSTed as JSON to your URL, ready for n8n, Make or Zapier. You can forward it to WhatsApp, email or Google Sheets from there.
 
+### Payments
+
+In **Channels → Online payments** choose a provider:
+
+- **Stripe:** enter your secret key and currency. In Stripe, add a webhook to the URL shown, for the event `checkout.session.completed`, and paste its signing secret. Orders are marked paid automatically and the customer gets a confirmation.
+- **Paymob:** enter your secret key, public key, currency and integration IDs. Mark orders paid from **Orders & bookings** once you see the payment in Paymob.
+
+The assistant sends the link when a customer wants to pay online. You can also send one from **Orders & bookings**.
+
+### WordPress
+
+Install `wordpress/wakeel-chat.zip` from **Plugins → Add New → Upload**, then paste your Wakeel address in **Settings → Wakeel Chat**. The chat bubble appears on every page.
+
 ### Agency mode
 
 Set `AGENCY_PASSWORD` and open `/agency`. Add a business, choose its type and optionally set the owner's password. It gets its own dashboard at `/b/<name>/`, its own channels, widget (`/b/<name>/widget.js`) and webhook (`/b/<name>/webhooks/meta`), and its data lives in a separate folder. Signing in to the agency console also opens every business's dashboard.
@@ -170,6 +188,9 @@ src/calendar.js      working hours + iCal availability
 src/notify.js        Telegram and webhook alerts for the owner
 src/media.js         voice note transcription and image handling
 src/templates.js     starter content per business type
+src/payments.js      Stripe Checkout and Paymob links, Stripe webhook verification
+src/scheduler.js     follow-ups and the daily summary
+wordpress/           the Wakeel Chat WordPress plugin
 src/channels/        Telegram (long polling), WhatsApp, Instagram and Messenger (Meta webhook)
 public/              dashboard and agency console (no build step) and widget.js
 ```
@@ -182,9 +203,13 @@ public/              dashboard and agency console (no build step) and widget.js
 - [x] Calendar availability for bookings
 - [x] Dukkan, WooCommerce and Shopify product sync
 - [x] Agency mode
-- [ ] Team members with separate logins
-- [ ] Daily summary for the owner
+- [x] Team members with separate logins
+- [x] Daily summary for the owner
+- [x] Unanswered-question report
+- [x] Follow-ups, ratings, payment links
+- [x] WordPress plugin
 - [ ] Spoken replies (text to speech)
+- [ ] WhatsApp broadcast to opted-in customers (approved templates)
 
 Pull requests are welcome. Please open an issue first for larger changes.
 
@@ -210,6 +235,10 @@ MIT
 - **مواعيد من غير تضارب:** حدد مواعيد الشغل، واربط Google Calendar لو حابب، والوكيل هيعرض المواعيد الفاضية بس.
 - **بيبلّغك فوراً:** كل طلب أو حجز أو عميل محتاجك بيوصلك عليه إشعار على تليجرام أو المتصفح أو أي Webhook.
 - **مناسب للوكالات:** سيرفر واحد يشغّل بيزنسات كتير، كل واحد بلوحة تحكم وقنوات وبيانات منفصلة.
+- **بيتعلم كل أسبوع:** الأسئلة اللي ماعرفش يجاوبها بتتجمع في قايمة، تكتب إجابتها مرة واحدة ويعرفها على طول.
+- **بيرجّعلك العملاء:** لو حد سأل عن السعر ومشي، الوكيل يتابع معاه مرة واحدة بلطف.
+- **روابط دفع:** Stripe أو Paymob بعد الطلب على طول.
+- **تقييمات وملخص يومي** على تليجرام، و**حسابات للموظفين**، و**إضافة ووردبريس**.
 - **بياخد طلبات وحجوزات:** بيأكد التفاصيل مع العميل ويديله رقم طلب. إنت تأكد بضغطة واحدة، والعميل يوصله إشعار على نفس القناة.
 - **بيعرف إمتى يسيبك ترد:** لو العميل طلب حد من الفريق، أو اتضايق، أو سأل حاجة مش موجودة في معلوماتك.
 - **بيتكلم زي عملاءك:** مصري، خليجي، شامي، أو إنجليزي.

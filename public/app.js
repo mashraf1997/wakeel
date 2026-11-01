@@ -77,6 +77,13 @@
       voiceTitle: 'الرسائل الصوتية', voiceLead: 'الوكيل يحوّل الفويس لنص ويرد عليه. محتاج خدمة تحويل صوت لنص متوافقة مع OpenAI.', voiceHint: 'مثال مجاني: Groq بالرابط https://api.groq.com/openai/v1 والنموذج whisper-large-v3-turbo', vision: 'النموذج بيشوف الصور', visionHint: 'فعّلها لو النموذج بيدعم الصور (Claude بيدعمها دايماً)',
       voiceNote: 'رسالة صوتية', newOrderAlert: 'طلب جديد!', attentionAlert: 'عميل محتاجك',
       stepNotify: 'فعّل الإشعارات عشان ماتفوّتش طلب',
+      username: 'اسم المستخدم', usernameHint: 'للموظفين بس. صاحب البيزنس يسيبه فاضي.',
+      gapsTitle: 'أسئلة الوكيل ماعرفش يجاوبها', gapsLead: 'اكتب الإجابة مرة واحدة والوكيل هيعرفها بعد كده.', answerPh: 'اكتب الإجابة…', saveAnswer: 'حفظ الإجابة', dismiss: 'تجاهل', times: 'مرة', noGaps: 'مفيش أسئلة معلّقة 👌', gapsN: 'سؤال من غير إجابة',
+      rating: 'متوسط التقييم (30 يوم)', ratings_n: 'تقييم',
+      autoTitle: 'المتابعة التلقائية', followups: 'متابعة العملاء اللي ماكملوش الطلب (مرة واحدة)', ratingsOn: 'اطلب تقييم بعد ما الطلب يخلص', summaryOn: 'ملخص يومي على تليجرام أو الـ Webhook الساعة', ev_payment: 'دفع أونلاين', ev_lowRating: 'تقييم منخفض', ev_summary: 'الملخص اليومي',
+      payTitle: 'الدفع أونلاين', payLead: 'الوكيل يبعت رابط دفع للعميل بعد الطلب. Stripe بيأكد الدفع تلقائياً، و Paymob بتأكده إنت بضغطة.', provider_none: 'مفيش', currencyCode: 'العملة (مثلاً EGP أو SAR أو USD)', stripeKey: 'Stripe secret key', stripeHook: 'Stripe webhook signing secret', stripeHookUrl: 'رابط الـ Webhook في Stripe (حدث checkout.session.completed)', paymobSecret: 'Paymob secret key', paymobPublic: 'Paymob public key', paymobIds: 'Integration IDs (مفصولة بفاصلة)',
+      payLink: 'ابعت رابط دفع', paid: 'مدفوع', markPaid: 'اتدفع', totalQ: 'إجمالي الطلب', unpaid: 'رابط الدفع اتبعت',
+      teamTitle: 'الفريق', teamLead: 'الموظفين يدخلوا باسم مستخدم ويشوفوا المحادثات والطلبات بس، من غير الإعدادات.', name: 'الاسم', addMember: 'إضافة موظف', noTeam: 'مفيش موظفين لسه.', remove: 'إزالة',
     },
     en: {
       bizType: 'Business type', tplNone: 'Other / start empty', tpl_restaurant: 'Restaurant or café', tpl_clinic: 'Clinic', tpl_salon: 'Salon or spa', tpl_store: 'Online store', tplHint: 'We add a sample menu and info you can edit', replyLang: 'Sample content language',
@@ -91,6 +98,13 @@
       voiceTitle: 'Voice notes', voiceLead: 'The assistant transcribes voice notes and answers them. Needs an OpenAI-compatible speech-to-text API.', voiceHint: 'Free option: Groq at https://api.groq.com/openai/v1 with model whisper-large-v3-turbo', vision: 'Model can see images', visionHint: 'Turn on if your model supports images (Claude always does)',
       voiceNote: 'Voice note', newOrderAlert: 'New order!', attentionAlert: 'A customer needs you',
       stepNotify: 'Turn on notifications so you never miss an order',
+      username: 'Username', usernameHint: 'Staff only. The owner leaves it empty.',
+      gapsTitle: 'Questions the assistant could not answer', gapsLead: 'Write the answer once and the assistant will know it from now on.', answerPh: 'Write the answer…', saveAnswer: 'Save answer', dismiss: 'Dismiss', times: 'times', noGaps: 'No open questions 👌', gapsN: 'unanswered questions',
+      rating: 'Average rating (30 days)', ratings_n: 'ratings',
+      autoTitle: 'Automatic follow-up', followups: 'Follow up once with customers who did not finish ordering', ratingsOn: 'Ask for a rating after an order is done', summaryOn: 'Daily summary on Telegram or webhook at', ev_payment: 'Online payments', ev_lowRating: 'Low ratings', ev_summary: 'Daily summary',
+      payTitle: 'Online payments', payLead: 'The assistant sends a payment link after an order. Stripe confirms payment automatically; with Paymob you mark it paid with one click.', provider_none: 'None', currencyCode: 'Currency (e.g. EGP, SAR, USD)', stripeKey: 'Stripe secret key', stripeHook: 'Stripe webhook signing secret', stripeHookUrl: 'Webhook URL for Stripe (event checkout.session.completed)', paymobSecret: 'Paymob secret key', paymobPublic: 'Paymob public key', paymobIds: 'Integration IDs (comma separated)',
+      payLink: 'Send payment link', paid: 'Paid', markPaid: 'Mark paid', totalQ: 'Order total', unpaid: 'Payment link sent',
+      teamTitle: 'Team', teamLead: 'Staff sign in with a username and see only conversations and orders, not settings.', name: 'Name', addMember: 'Add member', noTeam: 'No team members yet.', remove: 'Remove',
     },
   };
   Object.assign(STR.ar, MORE.ar);
@@ -196,11 +210,12 @@
 
   function renderLogin() {
     authFrame(`<h1>${t('loginTitle')}</h1>
+      ${state.session.hasStaff ? `<label class="field" for="f-user">${t('username')} <span class="hint">${t('usernameHint')}</span><input type="text" id="f-user" class="ltr" autocomplete="username"></label>` : ''}
       <label class="field" for="f-pw">${t('password')}<input type="password" id="f-pw" autocomplete="current-password" required></label>`);
     $('#authBtn').textContent = t('login');
     $('#authForm').onsubmit = async (e) => {
       e.preventDefault();
-      try { await api('/api/login', { method: 'POST', body: { password: $('#f-pw').value } }); boot(); }
+      try { await api('/api/login', { method: 'POST', body: { username: $('#f-user')?.value || '', password: $('#f-pw').value } }); boot(); }
       catch (err) { $('#authErr').textContent = err.message; }
     };
     $('#f-pw').focus();
@@ -209,8 +224,11 @@
   // ------------------------------------------------------------------ shell + routing
   const PAGES = ['overview', 'inbox', 'requests', 'knowledge', 'channels', 'ai', 'account'];
 
+  const STAFF_PAGES = ['overview', 'inbox', 'requests', 'account'];
+  const myPages = () => (state.session?.role === 'agent' ? STAFF_PAGES : PAGES);
+
   function renderShell() {
-    const navItems = PAGES.map((p) => `<a class="nav" href="#${p}" data-page="${p}"><span>${t(p)}</span><span class="badge" data-badge="${p}" hidden></span></a>`).join('');
+    const navItems = myPages().map((p) => `<a class="nav" href="#${p}" data-page="${p}"><span>${t(p)}</span><span class="badge" data-badge="${p}" hidden></span></a>`).join('');
     app.innerHTML = `<div class="shell">
       <nav class="rail" aria-label="Main">
         <div class="brand"><img src="favicon.svg" alt="">Wakeel</div>
@@ -229,7 +247,7 @@
 
   function currentPage() {
     const h = location.hash.replace('#', '').split(':')[0];
-    return PAGES.includes(h) ? h : 'overview';
+    return myPages().includes(h) ? h : 'overview';
   }
 
   function route() {
@@ -288,7 +306,7 @@
     state.overview = o;
     const ch = o.channels;
     const anyChannel = ch.telegram.connected || ch.whatsapp.configured || ch.instagram.configured || o.byChannel.web > 0;
-    const steps = [
+    const steps = state.session.role === 'agent' ? [] : [
       [o.aiReady, t('stepAI'), '#ai'],
       [o.profileReady, t('stepInfo'), '#knowledge'],
       [anyChannel, t('stepChannel'), '#channels'],
@@ -314,6 +332,10 @@
         <a class="card stat ${o.pendingRequests ? 'alert' : ''}" href="#requests" style="text-decoration:none;color:inherit"><b>${o.pendingRequests}</b><span>${t('pending')}</span></a>
         <a class="card stat ${o.needsAttention ? 'alert' : ''}" href="#inbox" style="text-decoration:none;color:inherit"><b>${o.needsAttention}</b><span>${t('attention')}</span></a>
       </div>
+      ${o.rating || o.openGaps ? `<div class="grid2">
+        ${o.rating ? `<div class="card stat"><b>⭐ ${o.rating.avg}</b><span>${t('rating')} · ${o.rating.count} ${t('ratings_n')}</span></div>` : ''}
+        ${o.openGaps && state.session.role !== 'agent' ? `<a class="card stat alert" href="#knowledge" style="text-decoration:none;color:inherit"><b>${o.openGaps}</b><span>${t('gapsN')}</span></a>` : ''}
+      </div>` : ''}
       <div class="grid2">
         <section class="card"><h2>${t('perDay')}</h2>
           <div class="bars">${o.perDay.map((d, i) => `<div class="bar ${i === 6 ? 'today' : ''}"><small>${d.count}</small><i style="height:${Math.max(2, Math.round((d.count / max) * 110))}px"></i></div>`).join('')}</div>
@@ -384,7 +406,7 @@
         <button class="btn sm danger" id="delBtn" type="button">${t('del')}</button>
       </div>
       <div class="msgs" id="msgs" data-count="${c.messages.length}" data-mode="${c.mode}">
-        ${c.messages.map((m) => `<div class="msg ${m.role}">${msgBody(m)}<small>${m.role === 'owner' ? (lang === 'ar' ? 'إنت · ' : 'You · ') : m.role === 'bot' ? (lang === 'ar' ? 'الوكيل · ' : 'Assistant · ') : ''}${time(m.at)}</small></div>`).join('')}
+        ${c.messages.map((m) => `<div class="msg ${m.role}">${msgBody(m)}<small>${m.role === 'owner' ? (m.by ? esc(m.by) + ' · ' : (lang === 'ar' ? 'إنت · ' : 'You · ')) : m.role === 'bot' ? (lang === 'ar' ? 'الوكيل · ' : 'Assistant · ') : ''}${time(m.at)}</small></div>`).join('')}
         ${c.handoffReason && human ? `<div class="notice">${t('handedOff')}: ${esc(c.handoffReason)}</div>` : ''}
         ${c.lastError ? `<div class="notice">${t('aiError')}${esc(c.lastError.message)}</div>` : ''}
       </div>
@@ -449,15 +471,32 @@
           <td>${esc(r.customerName || '—')}${r.phone ? `<br><span class="mono">${esc(r.phone)}</span>` : ''}${r.notes ? `<br><span class="muted small">${esc(r.notes)}</span>` : ''}</td>
           <td>${details(r)}</td>
           <td class="num small">${time(r.createdAt)}</td>
-          <td><span class="pill ${pill[r.status]}">${t('st_' + r.status)}</span></td>
+          <td><div class="stack" style="gap:4px"><span class="pill ${pill[r.status]}">${t('st_' + r.status)}</span>${r.payment?.status === 'paid' ? `<span class="pill good">💳 ${t('paid')}</span>` : r.payment ? `<a class="pill warn" href="${esc(r.payment.url)}" target="_blank" rel="noopener">💳 ${t('unpaid')}</a>` : ''}${r.total ? `<span class="small mono">${esc(r.total)}</span>` : ''}</div></td>
           <td><div class="stack" style="gap:6px">
             ${r.status === 'pending' ? `<button class="btn sm primary" data-act="confirmed" data-id="${esc(r.id)}">${t('confirmNotify')}</button>` : ''}
             ${r.status === 'confirmed' ? `<button class="btn sm" data-act="done" data-id="${esc(r.id)}">${t('markDone')}</button>` : ''}
             ${r.status === 'pending' || r.status === 'confirmed' ? `<button class="btn sm danger" data-act="cancelled" data-id="${esc(r.id)}">${t('cancelNotify')}</button>` : ''}
+            ${r.type === 'order' && r.status !== 'cancelled' && r.payment?.status !== 'paid' && state.session.role !== 'agent' ? `<button class="btn sm" data-pay="${esc(r.id)}" data-total="${esc(r.total ?? '')}">${t('payLink')}</button>` : ''}
+            ${r.payment && r.payment.status !== 'paid' ? `<button class="btn sm" data-paid="${esc(r.id)}">${t('markPaid')}</button>` : ''}
             <a class="btn sm" href="#inbox:${encodeURIComponent(r.conversationId)}">${t('openChat')}</a>
           </div></td></tr>`).join('')}</tbody></table></div>` : `<div class="card empty">${t('noRequests')}</div>`}
     </div>`;
     $$('[data-f]', main).forEach((b) => (b.onclick = () => { state.reqFilter = b.dataset.f; pageRequests(main); }));
+    $$('[data-pay]', main).forEach((b) => (b.onclick = () => {
+      const d = document.createElement('dialog');
+      d.innerHTML = `<form method="dialog" class="stack" style="min-width:260px"><label class="field" for="pay-total">${t('totalQ')}<input type="number" step="0.01" min="0" id="pay-total" value="${esc(b.dataset.total)}" required></label><div class="row"><button class="btn primary" value="yes">${t('payLink')}</button><button class="btn" value="no">${t('cancel')}</button></div></form>`;
+      d.style.cssText = 'border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);padding:20px';
+      document.body.appendChild(d);
+      d.addEventListener('close', async () => {
+        const total = Number($('#pay-total', d).value);
+        d.remove();
+        if (d.returnValue !== 'yes') return;
+        try { const out = await api('/api/requests/' + b.dataset.pay, { method: 'PATCH', body: { action: 'paymentLink', total, send: true } }); if (out.warning) toast(out.warning); else toast(t('sent')); pageRequests(main); }
+        catch (err) { toast(err.message); }
+      });
+      d.showModal();
+    }));
+    $$('[data-paid]', main).forEach((b) => (b.onclick = async () => { await api('/api/requests/' + b.dataset.paid, { method: 'PATCH', body: { action: 'markPaid' } }); pageRequests(main); }));
     $$('[data-act]', main).forEach((b) => (b.onclick = async () => {
       b.disabled = true;
       try {
@@ -534,11 +573,19 @@
 
   // ------------------------------------------------------------------ catalog, image library, appointments
   async function renderKnowledgeExtras(box) {
-    const [{ settings: s }, cat, { library }] = await Promise.all([api('/api/settings'), api('/api/catalog'), api('/api/library')]);
+    const [{ settings: s }, cat, { library }, { gaps }] = await Promise.all([api('/api/settings'), api('/api/catalog'), api('/api/library'), api('/api/gaps')]);
     const c = s.catalog, cal = s.calendar;
     const catStatus = (x) => x.error ? `<span class="pill bad" title="${esc(x.error)}">${esc(x.error)}</span>` : x.syncedAt ? `<span class="pill good">${x.count} ${t('products_n')}</span> <span class="muted small">${t('lastSync')}: ${time(x.syncedAt)}</span>` : '';
     const tzs = (() => { try { return Intl.supportedValuesOf('timeZone'); } catch { return []; } })();
     box.innerHTML = `
+      <section class="card" id="gaps">
+        <div><h2>${t('gapsTitle')}</h2><p class="muted small">${t('gapsLead')}</p></div>
+        ${gaps.length ? gaps.map((g) => `<form class="stack" data-gap="${esc(g.id)}" style="gap:8px;padding-bottom:12px;border-bottom:1px solid var(--line)">
+          <div class="row"><b>${esc(g.question)}</b><span class="pill warn">${g.count} ${t('times')}</span></div>
+          <div class="row"><input type="text" placeholder="${t('answerPh')}" aria-label="${t('answerPh')}" style="flex:1;min-width:200px"><button class="btn sm primary" type="submit">${t('saveAnswer')}</button><button class="btn sm" type="button" data-dismiss>${t('dismiss')}</button></div>
+        </form>`).join('') : `<p class="muted">${t('noGaps')}</p>`}
+      </section>
+
       <section class="card">
         <div><h2>${t('catalogTitle')}</h2><p class="muted small">${t('catalogLead')}</p></div>
         <div class="grid2">
@@ -574,6 +621,13 @@
       </section>`;
 
     const saveSettings = (settings) => api('/api/settings', { method: 'PUT', body: { settings } });
+    $$('[data-gap]', box).forEach((f) => {
+      f.onsubmit = async (e) => {
+        e.preventDefault();
+        try { await api('/api/gaps/' + f.dataset.gap, { method: 'POST', body: { answer: $('input', f).value } }); toast(t('saved')); renderKnowledgeExtras(box); } catch (err) { toast(err.message); }
+      };
+      $('[data-dismiss]', f).onclick = async () => { await api('/api/gaps/' + f.dataset.gap, { method: 'DELETE', body: {} }); renderKnowledgeExtras(box); };
+    });
     $('#c-src').onchange = () => { $('#c-note').textContent = $('#c-src').value === 'dukkan' ? t('dukkanNote') : ''; };
     $('#c-save').onclick = async () => { try { await saveSettings({ catalog: { source: $('#c-src').value, url: $('#c-url').value } }); toast(t('saved')); setTimeout(() => renderKnowledgeExtras(box), 2500); } catch (e) { toast(e.message); } };
     $('#c-sync').onclick = async (ev) => {
@@ -628,9 +682,30 @@
           ${tgLink ? `<span class="hint">${t('tgLinkHint')}</span>${copyRow(tgLink, 'tgLinkUrl')}<div class="row small"><span class="muted">${t('linked')}: ${n.telegramChats.length}</span>${n.telegramChats.length ? `<button class="btn sm danger" id="unlinkBtn" type="button">${t('unlink')}</button>` : ''}</div>` : `<span class="hint">${t('tgLinkNeed')}</span>`}
         </div>
         ${inp('n-hook', 'hook', n.webhookUrl)}
-        <div class="field">${t('events')}<div class="checks">${['order', 'booking', 'handoff', 'error'].map((e) => `<label><input type="checkbox" data-ev="${e}" ${n.events[e] ? 'checked' : ''}>${t('ev_' + e)}</label>`).join('')}</div></div>
+        <div class="field">${t('events')}<div class="checks">${['order', 'booking', 'handoff', 'payment', 'lowRating', 'summary', 'error'].map((e) => `<label><input type="checkbox" data-ev="${e}" ${n.events[e] ? 'checked' : ''}>${t('ev_' + e)}</label>`).join('')}</div></div>
         <div class="row"><button class="btn" id="testNotify" type="button">${t('testNotify')}</button>
           ${perm === 'default' ? `<button class="btn" id="browserNotify" type="button">${t('enableBrowser')}</button>` : perm === 'granted' ? `<span class="pill good">${t('browserNotify')}</span>` : ''}</div>
+        <hr style="border:0;border-top:1px solid var(--line);width:100%;margin:2px 0">
+        <h3>${t('autoTitle')}</h3>
+        <label class="switch"><input type="checkbox" id="au-fu" ${s.followups.enabled ? 'checked' : ''}>${t('followups')}</label>
+        <label class="switch"><input type="checkbox" id="au-rt" ${s.ratings.enabled ? 'checked' : ''}>${t('ratingsOn')}</label>
+        <div class="row"><label class="switch"><input type="checkbox" id="au-sm" ${s.summary.enabled ? 'checked' : ''}>${t('summaryOn')}</label>
+          <select id="au-hour" aria-label="hour" style="width:auto">${[...Array(24)].map((_, h) => `<option value="${h}" ${Number(s.summary.hour) === h ? 'selected' : ''}>${String(h).padStart(2, '0')}:00</option>`).join('')}</select></div>
+      </section>
+      <section class="card" id="payments">
+        <div><h2>${t('payTitle')}</h2><p class="muted small">${t('payLead')}</p></div>
+        <div class="grid2">
+          <label class="field" for="py-prov">${t('provider')}<select id="py-prov">${[['none', t('provider_none')], ['stripe', 'Stripe'], ['paymob', 'Paymob']].map(([v, l]) => `<option value="${v}" ${s.payments.provider === v ? 'selected' : ''}>${l}</option>`).join('')}</select></label>
+          ${inp('py-cur', 'currencyCode', s.payments.currency)}
+        </div>
+        <div class="stack" data-prov="stripe">
+          <div class="grid2">${inp('py-sk', 'stripeKey', s.payments.stripeSecretKey)}${inp('py-wh', 'stripeHook', s.payments.stripeWebhookSecret)}</div>
+          <div class="field">${t('stripeHookUrl')}${copyRow(origin + BASE + '/webhooks/stripe', 'stripeHookUrl')}</div>
+        </div>
+        <div class="stack" data-prov="paymob">
+          <div class="grid2">${inp('pm-sk', 'paymobSecret', s.payments.paymobSecretKey)}${inp('pm-pk', 'paymobPublic', s.payments.paymobPublicKey)}</div>
+          ${inp('pm-ids', 'paymobIds', s.payments.paymobIntegrationIds)}
+        </div>
       </section>
       <section class="card"><div class="card-head"><div class="row">${chIcon('web')}<h2>${t('webTitle')}</h2></div><span class="pill good">${t('connected')}</span></div>
         <p class="muted small">${esc(t('webLead'))}</p>${copyRow(embed, 'embedCode')}
@@ -666,6 +741,9 @@
       <div class="row" style="position:sticky;bottom:0;padding:12px 0;background:var(--bg)"><button class="btn primary" id="saveCh" type="button">${t('save')}</button></div>
     </div>`;
     $$('[data-copy]', main).forEach((b) => (b.onclick = () => copyText($('#' + b.dataset.copy).textContent, b)));
+    const syncPay = () => $$('[data-prov]', main).forEach((el) => (el.style.display = el.dataset.prov === $('#py-prov').value ? '' : 'none'));
+    $('#py-prov').onchange = syncPay;
+    syncPay();
     $('#saveCh').onclick = async () => {
       const body = { settings: {
         widget: { title: $('#w-title').value, greeting: $('#w-greeting').value, color: $('#w-color').value },
@@ -676,6 +754,10 @@
           messenger: { pageToken: $('#ms-token').value, verifyToken: $('#ms-verify').value, appSecret: $('#ms-secret').value, enabled: $('#ms-on').checked },
         },
         notify: { webhookUrl: $('#n-hook').value, events: Object.fromEntries($$('[data-ev]', main).map((i) => [i.dataset.ev, i.checked])) },
+        followups: { enabled: $('#au-fu').checked },
+        ratings: { enabled: $('#au-rt').checked },
+        summary: { enabled: $('#au-sm').checked, hour: Number($('#au-hour').value) },
+        payments: { provider: $('#py-prov').value, currency: $('#py-cur').value, stripeSecretKey: $('#py-sk').value, stripeWebhookSecret: $('#py-wh').value, paymobSecretKey: $('#pm-sk').value, paymobPublicKey: $('#pm-pk').value, paymobIntegrationIds: $('#pm-ids').value },
       } };
       try { await api('/api/settings', { method: 'PUT', body }); toast(t('saved')); setTimeout(() => pageChannels(main), 600); } catch (err) { toast(err.message); }
     };
@@ -788,13 +870,33 @@
         <div class="err" id="pwErr"></div>
         <div class="row"><button class="btn primary" type="submit">${t('change')}</button></div>
       </form>
+      ${state.session.role === 'agent' ? '' : `<section class="card" id="team"></section>`}
       <p class="muted small">Wakeel · ${t('version')} ${esc(state.session.version)} · MIT</p>
     </div>`;
+    if ($('#team')) renderTeam($('#team'));
     $('#pwForm').onsubmit = async (e) => {
       e.preventDefault();
-      try { await api('/api/password', { method: 'POST', body: { current: $('#pw-cur').value, next: $('#pw-new').value } }); toast(t('saved')); $('#pwForm').reset(); $('#pwErr').textContent = ''; }
+      try { await api('/api/me/password', { method: 'POST', body: { current: $('#pw-cur').value, next: $('#pw-new').value } }); toast(t('saved')); $('#pwForm').reset(); $('#pwErr').textContent = ''; }
       catch (err) { $('#pwErr').textContent = err.message; }
     };
+  }
+
+  async function renderTeam(box) {
+    const { users } = await api('/api/users');
+    box.innerHTML = `<div><h2>${t('teamTitle')}</h2><p class="muted small">${t('teamLead')}</p></div>
+      ${users.length ? `<div class="stack">${users.map((u) => `<div class="row"><b>${esc(u.name)}</b><span class="mono small muted">${esc(u.username)}</span><span class="spacer"></span><button class="btn sm danger" data-rm="${esc(u.id)}" type="button">${t('remove')}</button></div>`).join('')}</div>` : `<p class="muted">${t('noTeam')}</p>`}
+      <form class="grid4" id="teamForm" style="align-items:end">
+        <label class="field" for="tm-name">${t('name')}<input type="text" id="tm-name"></label>
+        <label class="field" for="tm-user">${t('username')}<input type="text" id="tm-user" class="ltr" autocomplete="off"></label>
+        <label class="field" for="tm-pw">${t('password')}<input type="text" id="tm-pw" class="ltr" autocomplete="off"></label>
+        <button class="btn primary" type="submit">${t('addMember')}</button>
+      </form><div class="err" id="tmErr"></div>`;
+    $('#teamForm').onsubmit = async (e) => {
+      e.preventDefault();
+      try { await api('/api/users', { method: 'POST', body: { name: $('#tm-name').value, username: $('#tm-user').value, password: $('#tm-pw').value } }); renderTeam(box); }
+      catch (err) { $('#tmErr').textContent = err.message; }
+    };
+    $$('[data-rm]', box).forEach((b) => (b.onclick = async () => { await api('/api/users/' + b.dataset.rm, { method: 'DELETE', body: {} }); renderTeam(box); }));
   }
 
   boot();

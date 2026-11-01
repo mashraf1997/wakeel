@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Payment received</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="auth"><div class="card" style="text-align:center">
+  <div style="font-size:3rem">✅</div>
+  <h1>تم الدفع بنجاح</h1>
+  <p class="muted">شكراً! هيوصلك تأكيد على نفس المحادثة.</p>
+  <hr style="border:0;border-top:1px solid var(--line);width:100%">
+  <h2 dir="ltr">Payment received</h2>
+  <p class="muted" dir="ltr">Thank you! You will get a confirmation in the same chat.</p>
+  <p class="mono small" id="ref"></p>
+</div></div>
+<script>
+  var ref = new URLSearchParams(location.search).get('ref');
+  if (ref && /^[A-Z0-9]{3,12}$/.test(ref)) document.getElementById('ref').textContent = ref;
+</script>
+</body>
+</html>

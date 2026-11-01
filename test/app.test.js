@@ -147,7 +147,7 @@ test('Anthropic provider: tool loop, refusal fallback opt-in, effort', async () 
   assert.equal(first.body.fallbacks, 'default');
   assert.deepEqual(first.body.output_config, { effort: 'low' });
   assert.equal(first.body.system[0].cache_control.type, 'ephemeral');
-  assert.equal(first.body.tools.length, 3);
+  assert.deepEqual(first.body.tools.map((t) => t.name), ['create_order', 'book_appointment', 'handoff_to_human', 'report_missing_info', 'schedule_followup']);
   assert.equal(second.body.messages.at(-1).content[0].tool_use_id, 'toolu_1');
   const booking = app.store.data.requests.find((x) => x.type === 'booking');
   assert.equal(booking.time, '17:45');

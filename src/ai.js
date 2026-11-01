@@ -85,7 +85,7 @@ async function runAnthropic(ai, { system, history, tools, executeTool }) {
       max_tokens: 16000,
       system: systemBlocks,
       messages,
-      tools: toolDefs,
+      ...(toolDefs.length ? { tools: toolDefs } : {}),
     };
     if (EFFORT_MODELS.test(model) && ai.effort) params.output_config = { effort: ai.effort };
     if (FALLBACK_MODELS.has(model)) {
@@ -155,7 +155,7 @@ async function runOpenAI(ai, { system, history, tools, executeTool }) {
           'content-type': 'application/json',
           ...(ai.apiKey ? { authorization: `Bearer ${ai.apiKey}` } : {}),
         },
-        body: JSON.stringify({ model: ai.model, messages, tools: toolDefs }),
+        body: JSON.stringify({ model: ai.model, messages, ...(toolDefs.length ? { tools: toolDefs } : {}) }),
         signal: AbortSignal.timeout(180_000),
       });
     } catch {

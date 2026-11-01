@@ -46,7 +46,7 @@ export function defaultData() {
         linkCode: crypto.randomBytes(6).toString('hex'),
         telegramChats: [], // owner chat ids linked with /start <linkCode>
         webhookUrl: '',
-        events: { order: true, booking: true, handoff: true, error: true },
+        events: { order: true, booking: true, handoff: true, error: true, payment: true, lowRating: true, summary: true },
       },
       catalog: { source: 'none', url: '', intervalMinutes: 60 }, // none | dukkan | woocommerce | shopify
       calendar: {
@@ -58,8 +58,24 @@ export function defaultData() {
         closedDays: [], // 0 = Sunday ... 6 = Saturday
         slotMinutes: 30,
       },
+      followups: { enabled: true },
+      summary: { enabled: true, hour: 22, lastSentDate: '' },
+      ratings: { enabled: true },
+      payments: {
+        provider: 'none', // none | stripe | paymob
+        currency: '',
+        stripeSecretKey: '',
+        stripeWebhookSecret: '',
+        paymobSecretKey: '',
+        paymobPublicKey: '',
+        paymobIntegrationIds: '',
+      },
     },
     catalog: { products: [], shop: null, syncedAt: null, error: null },
+    gaps: [], // questions the assistant could not answer: { id, question, count, firstAt, lastAt, conversationId, status }
+    followups: [], // { id, conversationId, dueAt, note, status, createdAt }
+    ratings: [], // { conversationId, requestId, score, at }
+    users: [], // staff logins: { id, name, username, role: 'agent', salt, hash, createdAt }
     library: [], // owner images the assistant may send: { id, name, file, mime, createdAt }
     knowledge: [], // { id, title, text, createdAt }
     conversations: {}, // id -> conversation

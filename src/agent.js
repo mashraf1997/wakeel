@@ -6,6 +6,9 @@ import { buildKnowledgeContext } from './knowledge.js';
 import { catalogText, findProduct, createDukkanOrder } from './catalog.js';
 import { availability } from './calendar.js';
 import { transcribe, sniffImageType, IMAGE_TYPES } from './media.js';
+import { createPaymentLink, paymentsReady } from './payments.js';
+import { normalize } from './knowledge.js';
+import crypto from 'node:crypto';
 
 const HISTORY_LIMIT = 30;
 const IMAGES_IN_CONTEXT = 2;
@@ -97,6 +100,32 @@ export function buildTools(store) {
       parameters: { type: 'object', properties: { date: { type: 'string', description: 'YYYY-MM-DD' } }, required: ['date'] },
     });
   }
+  tools.push({
+    name: 'report_missing_info',
+    description: 'Call this whenever the customer asks something the business information does not answer (a price, product, policy or detail that is missing). It lets the owner add the answer later. Still reply to the customer: say you will check with the team.',
+    parameters: { type: 'object', properties: { question: { type: 'string', description: 'The missing information, as a short question in the customer\'s language' } }, required: ['question'] },
+  });
+  if (d.settings.followups.enabled) {
+    tools.push({
+      name: 'schedule_followup',
+      description: 'When a customer showed real interest but did not finish (asked prices then went quiet, said they will think about it, needs to check something), schedule one friendly follow-up message. Never use it if they declined or already ordered.',
+      parameters: {
+        type: 'object',
+        properties: {
+          after_hours: { type: 'number', description: 'Hours to wait, between 1 and 20' },
+          note: { type: 'string', description: 'What to follow up about' },
+        },
+        required: ['after_hours', 'note'],
+      },
+    });
+  }
+  if (paymentsReady(d.settings.payments)) {
+    tools.push({
+      name: 'create_payment_link',
+      description: 'Create an online payment link for an order that was already recorded, when the customer wants to pay online. Send the link to the customer.',
+      parameters: { type: 'object', properties: { reference: { type: 'string', description: 'The order reference, e.g. R7KQ2' } }, required: ['reference'] },
+    });
+  }
   if (d.library.length) {
     tools.push({
       name: 'send_image',
@@ -116,7 +145,7 @@ export function buildSystemPrompt(store, query) {
     '- Reply in the same language and dialect the customer writes in. Egyptian Arabic gets Egyptian Arabic, Gulf Arabic gets Gulf Arabic, English gets English.',
     '- Keep messages short, like a helpful person texting: one to four sentences, no markdown headings, no tables.',
     `- Tone: ${p.tone || 'friendly'}.`,
-    '- Only state prices, products, hours, policies and availability that appear in the business information below. If something is not there, say you will check with the team and use handoff_to_human when it matters.',
+    '- Only state prices, products, hours, policies and availability that appear in the business information below. If something is not there, call report_missing_info, say you will check with the team, and use handoff_to_human when it matters.',
     '- Never invent discounts, delivery times or promises.',
     '- To take an order or booking, collect the needed details naturally, confirm them back to the customer in one message, and call the tool only after the customer agrees.',
     '- After a tool call, tell the customer what happens next and include the reference number.',
@@ -210,6 +239,23 @@ export class Agent {
       }
 
       this.store.addMessage(conv, 'customer', body, extra);
+      this.cancelFollowups(conv);
+
+      const rating = conv.awaitingRating && Date.now() - conv.awaitingRating.at < 48 * 3600e3 ? parseRating(body) : null;
+      if (rating) {
+        this.store.data.ratings.push({ conversationId: conv.id, requestId: conv.awaitingRating.requestId, score: rating, at: new Date().toISOString() });
+        conv.awaitingRating = null;
+        const ar = isArabicConv(conv, body);
+        const reply = rating >= 4 ? (ar ? 'شكراً جداً لتقييمك! 💚 مستنيينك تاني.' : 'Thank you so much! 💚 See you again soon.') : (ar ? 'شكراً لصراحتك 🙏 هنبلّغ الفريق ونحاول نكون أحسن المرة الجاية.' : 'Thanks for being honest 🙏 We will tell the team and do better next time.');
+        this.store.addMessage(conv, 'bot', reply);
+        if (rating <= 2) {
+          conv.needsAttention = true;
+          this.notifier.send('lowRating', { conversation: conv, message: `⭐ ${rating}/5` });
+        }
+        this.store.save();
+        return { reply, images: [], conversation: conv };
+      }
+
       if (!settings.botEnabled || conv.mode === 'human') return { reply: null, images: [], conversation: conv };
 
       const outgoingImages = [];
@@ -346,6 +392,41 @@ export class Agent {
         if (!outgoingImages.some((x) => x.id === img.id)) outgoingImages.push(img);
         return { ok: true, note: 'The image will be sent with your reply. Add a short caption-like message.' };
       }
+      case 'report_missing_info': {
+        const q = String(input.question || '').trim().slice(0, 300);
+        if (!q) return { ok: false };
+        const keyOf = (x) => normalize(x).replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
+        const key = keyOf(q);
+        const existing = d.gaps.find((g) => g.status === 'open' && keyOf(g.question) === key);
+        if (existing) {
+          existing.count += 1;
+          existing.lastAt = new Date().toISOString();
+        } else {
+          d.gaps.unshift({ id: crypto.randomUUID(), question: q, count: 1, firstAt: new Date().toISOString(), lastAt: new Date().toISOString(), conversationId: conv.id, status: 'open' });
+          if (d.gaps.length > 500) d.gaps.length = 500;
+        }
+        this.store.save();
+        return { ok: true, note: 'Recorded for the owner. Tell the customer you will check with the team.' };
+      }
+      case 'schedule_followup': {
+        const hours = Math.min(20, Math.max(1, Number(input.after_hours) || 3));
+        this.cancelFollowups(conv);
+        d.followups.push({ id: crypto.randomUUID(), conversationId: conv.id, dueAt: new Date(Date.now() + hours * 3600e3).toISOString(), note: String(input.note || '').slice(0, 300), status: 'scheduled', createdAt: new Date().toISOString() });
+        this.store.save();
+        return { ok: true, note: 'Follow-up scheduled. Do not mention it to the customer.' };
+      }
+      case 'create_payment_link': {
+        const r = d.requests.find((x) => x.id === String(input.reference || '').trim().toUpperCase() && x.conversationId === conv.id);
+        if (!r) return { ok: false, error: 'not_found', note: 'No order with that reference in this chat.' };
+        if (r.payment?.status === 'paid') return { ok: true, already_paid: true };
+        try {
+          r.payment = await createPaymentLink(d.settings.payments, r, { businessName: d.profile.businessName, publicUrl: d.meta.publicUrl });
+        } catch (err) {
+          return { ok: false, error: err.code || 'payment_error', note: err.code === 'no_total' ? 'The order has no confirmed total yet; the team will send the link after confirming it.' : 'Online payment is not available right now; offer the other payment methods.' };
+        }
+        this.store.save();
+        return { ok: true, url: r.payment.url, amount: r.total, currency: d.settings.payments.currency };
+      }
       case 'handoff_to_human': {
         conv.mode = 'human';
         conv.needsAttention = true;
@@ -360,12 +441,33 @@ export class Agent {
     }
   }
 
+  cancelFollowups(conv) {
+    for (const f of this.store.data.followups) if (f.conversationId === conv.id && f.status === 'scheduled') f.status = 'cancelled';
+  }
+
+  /** Writes the text of a scheduled follow-up, or returns '' to skip it. */
+  async writeFollowup(conv, note) {
+    const system = buildSystemPrompt(this.store, '');
+    system.dynamic += `\n\n## Task\nThe customer went quiet. Write ONE short, friendly follow-up message in their language and dialect about: ${note || 'their earlier question'}. No pressure, no new promises, do not repeat earlier messages word for word. Reply with the message only.`;
+    const text = await runTurn(this.store.data.settings.ai, { system, history: this.historyFor(conv), tools: [], executeTool: async () => ({}) });
+    return String(text || '').trim();
+  }
+
   afterRequest(conv, r) {
     conv.needsAttention = true;
     this.store.save();
     this.notifier.send(r.type, { request: r, conversation: conv });
     this.onEvent(r.type, { request: r, conversation: conv });
   }
+}
+
+const AR_DIGITS = '٠١٢٣٤٥٦٧٨٩';
+export function parseRating(text) {
+  const t = String(text || '').trim().replace(/[٠-٩]/g, (d) => String(AR_DIGITS.indexOf(d)));
+  const stars = (t.match(/⭐|★|🌟/g) || []).length;
+  if (stars >= 1 && stars <= 5 && t.replace(/⭐|★|🌟|\s/g, '') === '') return stars;
+  const m = t.match(/^([1-5])(?:\s*\/\s*5)?\s*[!.⭐]*$/);
+  return m ? Number(m[1]) : null;
 }
 
 function isArabicConv(conv, text) {

@@ -13,6 +13,8 @@ import { syncCatalog } from './catalog.js';
 import { availability } from './calendar.js';
 import { applyTemplate, TEMPLATES } from './templates.js';
 import { sniffImageType, IMAGE_TYPES, MAX_IMAGE_BYTES } from './media.js';
+import { createPaymentLink, paymentsReady, verifyStripeEvent } from './payments.js';
+import { runScheduled } from './scheduler.js';
 import { hashPassword, verifyPassword, createSession, checkSession, parseCookies, RateLimiter } from './auth.js';
 import { send, readJson, readBody, clientIp, originOf, serveStatic, sendFile, cookie, VERSION } from './http.js';
 
@@ -61,6 +63,7 @@ export function createTenant({ dataDir, slug = '', basePath = '', setupToken = '
   }
 
   // ---------------- catalog sync schedule ----------------
+  let schedTimer = null;
   let catalogTimer = null;
   function scheduleCatalog() {
     clearInterval(catalogTimer);
@@ -74,13 +77,21 @@ export function createTenant({ dataDir, slug = '', basePath = '', setupToken = '
   }
 
   // ---------------- auth ----------------
-  const isAuthed = (req) => {
-    if (isAgencyAuthed(req)) return true;
-    const token = parseCookies(req.headers.cookie)[cookieName];
-    return checkSession(store.data.meta.secret, store.data.admin?.hash, token);
+  const hashFor = (uid) => (uid === 'owner' ? store.data.admin?.hash : store.data.users.find((u) => u.id === uid)?.hash) || null;
+  // Returns { uid, role, name } for a signed-in person, or null.
+  const whoIs = (req) => {
+    if (isAgencyAuthed(req)) return { uid: 'owner', role: 'owner', name: 'Agency' };
+    const uid = checkSession(store.data.meta.secret, parseCookies(req.headers.cookie)[cookieName], hashFor);
+    if (!uid) return null;
+    if (uid === 'owner') return { uid, role: 'owner', name: '' };
+    const u = store.data.users.find((x) => x.id === uid);
+    return u ? { uid, role: u.role || 'agent', name: u.name } : null;
   };
+  const isAuthed = (req) => Boolean(whoIs(req));
   const sessionCookie = (req, value, maxAge) => cookie(req, cookieName, value, maxAge, basePath || '/');
-  const newSession = (req) => sessionCookie(req, createSession(store.data.meta.secret, store.data.admin.hash), 30 * 86400);
+  const newSession = (req, uid = 'owner') => sessionCookie(req, createSession(store.data.meta.secret, hashFor(uid), uid), 30 * 86400);
+  // What staff (role "agent") may use: the inbox and orders, nothing that changes setup.
+  const AGENT_ALLOWED = [/^\/api\/overview$/, /^\/api\/conversations/, /^\/api\/requests/, /^\/api\/media\//, /^\/api\/me\/password$/];
 
   // ---------------- views ----------------
   function maskedSettings() {
@@ -90,6 +101,7 @@ export function createTenant({ dataDir, slug = '', basePath = '', setupToken = '
     };
     mask(s.ai, 'apiKey');
     mask(s.transcription, 'apiKey');
+    for (const k of ['stripeSecretKey', 'stripeWebhookSecret', 'paymobSecretKey']) mask(s.payments, k);
     mask(s.channels.telegram, 'token');
     mask(s.channels.whatsapp, 'token');
     mask(s.channels.whatsapp, 'appSecret');
@@ -149,6 +161,11 @@ export function createTenant({ dataDir, slug = '', basePath = '', setupToken = '
       aiReady: ai.provider === 'openai' ? Boolean(ai.model) : Boolean(ai.apiKey || env.ANTHROPIC_API_KEY),
       profileReady: Boolean(store.data.profile.businessName && (store.data.profile.products || store.data.knowledge.length || store.data.catalog.products.length)),
       notifyReady: Boolean(store.data.settings.notify.telegramChats.length || store.data.settings.notify.webhookUrl),
+      openGaps: store.data.gaps.filter((g) => g.status === 'open').length,
+      rating: (() => {
+        const rs = store.data.ratings.filter((r) => Date.parse(r.at) >= Date.now() - 30 * 864e5);
+        return rs.length ? { avg: Math.round((rs.reduce((a, r) => a + r.score, 0) / rs.length) * 10) / 10, count: rs.length } : null;
+      })(),
       channels: channelStatus(),
     };
   }
@@ -201,6 +218,19 @@ export function createTenant({ dataDir, slug = '', basePath = '', setupToken = '
       return send(res, 404, { error: 'Not found' }, cors);
     }
 
+    if (p === '/webhooks/stripe' && method === 'POST') {
+      const raw = await readBody(req);
+      const event = verifyStripeEvent(raw, req.headers['stripe-signature'], store.data.settings.payments.stripeWebhookSecret);
+      if (!event) return send(res, 400, 'Bad signature');
+      if (event.type === 'checkout.session.completed' || event.type === 'checkout.session.async_payment_succeeded') {
+        const obj = event.data?.object || {};
+        const ref = obj.metadata?.reference || obj.client_reference_id;
+        const r = store.data.requests.find((x) => x.id === ref);
+        if (r && obj.payment_status !== 'unpaid' && r.payment?.status !== 'paid') await markPaid(r, 'stripe');
+      }
+      return send(res, 200, { received: true });
+    }
+
     if (p === '/webhooks/meta') {
       if (method === 'GET') {
         const challenge = meta.verify(url.searchParams);
@@ -231,7 +261,8 @@ export function createTenant({ dataDir, slug = '', basePath = '', setupToken = '
           store.save();
         }
       }
-      return send(res, 200, { needsSetup: !store.data.admin, authed, setupTokenRequired: Boolean(setupToken), version: VERSION, basePath, templates: Object.keys(TEMPLATES) });
+      const who = authed ? whoIs(req) : null;
+      return send(res, 200, { needsSetup: !store.data.admin, authed, role: who?.role || null, userName: who?.name || '', hasStaff: store.data.users.length > 0, setupTokenRequired: Boolean(setupToken), version: VERSION, basePath, templates: Object.keys(TEMPLATES) });
     }
     if (p === '/api/setup' && method === 'POST') {
       if (store.data.admin) return send(res, 409, { error: 'Already set up' });
@@ -249,6 +280,12 @@ export function createTenant({ dataDir, slug = '', basePath = '', setupToken = '
     if (p === '/api/login' && method === 'POST') {
       if (!loginLimiter.allow(clientIp(req))) return send(res, 429, { error: 'Too many attempts. Try again in 15 minutes.' });
       const body = await readJson(req);
+      const username = String(body.username || '').trim().toLowerCase();
+      if (username) {
+        const u = store.data.users.find((x) => x.username === username);
+        if (!u || !verifyPassword(String(body.password || ''), u)) return send(res, 401, { error: 'Wrong username or password' });
+        return send(res, 200, { ok: true }, { 'set-cookie': newSession(req, u.id) });
+      }
       if (!verifyPassword(String(body.password || ''), store.data.admin)) return send(res, 401, { error: 'Wrong password' });
       return send(res, 200, { ok: true }, { 'set-cookie': newSession(req) });
     }
@@ -258,12 +295,16 @@ export function createTenant({ dataDir, slug = '', basePath = '', setupToken = '
 
     // ----- dashboard API (auth required) -----
     if (p.startsWith('/api/')) {
-      if (!isAuthed(req)) return send(res, 401, { error: 'Not signed in' });
+      const who = whoIs(req);
+      if (!who) return send(res, 401, { error: 'Not signed in' });
       if (method !== 'GET' && !(req.headers['content-type'] || '').includes('application/json')) {
         return send(res, 415, { error: 'Send JSON' }); // blocks cross-site form posts
       }
-      return dashboardApi(req, res, url, p, method);
+      if (who.role !== 'owner' && !AGENT_ALLOWED.some((r) => r.test(p))) return send(res, 403, { error: 'Only the owner can do this' });
+      return dashboardApi(req, res, url, p, method, who);
     }
+
+    if (p === '/paid.html' && method === 'GET') return serveStatic(res, 'paid.html');
 
     // ----- dashboard SPA -----
     if (method === 'GET') {
@@ -273,7 +314,22 @@ export function createTenant({ dataDir, slug = '', basePath = '', setupToken = '
     return send(res, 404, 'Not found');
   }
 
-  async function dashboardApi(req, res, url, p, method) {
+  async function markPaid(r, via) {
+    r.payment = { ...(r.payment || {}), status: 'paid', paidAt: new Date().toISOString(), via };
+    store.save();
+    const c = store.data.conversations[r.conversationId];
+    notifier.send('payment', { request: r, conversation: c });
+    if (c) {
+      const ar = c.messages.some((x) => x.role === 'customer' && /[\u0600-\u06FF]/.test(x.text));
+      const text = ar ? `تم استلام الدفع لطلبك رقم ${r.id} ✅ شكراً!` : `Payment received for ${r.id} ✅ Thank you!`;
+      try {
+        await sendTo(c.channel, c.externalId, text);
+        store.addMessage(c, 'bot', text);
+      } catch { /* customer channel unavailable */ }
+    }
+  }
+
+  async function dashboardApi(req, res, url, p, method, who) {
     const d = store.data;
     let m;
     const conv = (id) => d.conversations[decodeURIComponent(id)];
@@ -317,7 +373,7 @@ export function createTenant({ dataDir, slug = '', basePath = '', setupToken = '
       }
       c.mode = 'human';
       c.needsAttention = false;
-      store.addMessage(c, 'owner', text);
+      store.addMessage(c, 'owner', text, who.name ? { by: who.name } : {});
       return send(res, 200, { conversation: c });
     }
 
@@ -330,8 +386,46 @@ export function createTenant({ dataDir, slug = '', basePath = '', setupToken = '
       const r = d.requests.find((x) => x.id === m[1]);
       if (!r) return send(res, 404, { error: 'Request not found' });
       const body = await readJson(req);
+      if (body.action === 'paymentLink') {
+        if (!paymentsReady(d.settings.payments)) return send(res, 400, { error: 'Set up online payments first (Channels → Payments)' });
+        if (body.total != null && Number(body.total) > 0) r.total = Number(body.total);
+        try {
+          r.payment = await createPaymentLink(d.settings.payments, r, { businessName: d.profile.businessName, publicUrl: d.meta.publicUrl });
+        } catch (err) {
+          return send(res, 400, { error: err.code === 'no_total' ? 'Enter the order total first' : err.message });
+        }
+        store.save();
+        const c = d.conversations[r.conversationId];
+        if (c && body.send) {
+          const ar = c.messages.some((x) => x.role === 'customer' && /[\u0600-\u06FF]/.test(x.text));
+          const text = (ar ? `رابط الدفع لطلبك رقم ${r.id} (${r.total} ${d.settings.payments.currency}):\n` : `Payment link for ${r.id} (${r.total} ${d.settings.payments.currency}):\n`) + r.payment.url;
+          try {
+            await sendTo(c.channel, c.externalId, text);
+            store.addMessage(c, 'owner', text, who.name ? { by: who.name } : {});
+          } catch (err) {
+            return send(res, 200, { request: r, warning: `Link created, but not delivered: ${err.message}` });
+          }
+        }
+        return send(res, 200, { request: r });
+      }
+      if (body.action === 'markPaid') {
+        await markPaid(r, 'manual');
+        return send(res, 200, { request: r });
+      }
       if (!['pending', 'confirmed', 'done', 'cancelled'].includes(body.status)) return send(res, 400, { error: 'Unknown status' });
       r.status = body.status;
+      if (body.status === 'done' && d.settings.ratings.enabled) {
+        const c = d.conversations[r.conversationId];
+        if (c && c.channel !== 'test') {
+          const ar = c.messages.some((x) => x.role === 'customer' && /[\u0600-\u06FF]/.test(x.text));
+          const text = ar ? 'إزاي كانت تجربتك معانا؟ ابعت رقم من 1 لـ 5 ⭐' : 'How was your experience with us? Reply with a number from 1 to 5 ⭐';
+          try {
+            await sendTo(c.channel, c.externalId, text);
+            store.addMessage(c, 'bot', text);
+            c.awaitingRating = { at: Date.now(), requestId: r.id };
+          } catch { /* channel unavailable */ }
+        }
+      }
       r.updatedAt = new Date().toISOString();
       store.save();
       if (body.notify && (body.status === 'confirmed' || body.status === 'cancelled')) {
@@ -443,6 +537,56 @@ export function createTenant({ dataDir, slug = '', basePath = '', setupToken = '
       return send(res, 200, { ok: true });
     }
 
+    // ----- questions the assistant could not answer -----
+    if (p === '/api/gaps' && method === 'GET') return send(res, 200, { gaps: d.gaps.filter((g) => g.status === 'open') });
+    if ((m = p.match(/^\/api\/gaps\/([\w-]+)$/)) && (method === 'POST' || method === 'DELETE')) {
+      const g = d.gaps.find((x) => x.id === m[1]);
+      if (!g) return send(res, 404, { error: 'Not found' });
+      if (method === 'POST') {
+        const body = await readJson(req);
+        const answer = String(body.answer || '').trim();
+        if (!answer) return send(res, 400, { error: 'Write the answer first' });
+        let doc = d.knowledge.find((k) => k.faq);
+        if (!doc) {
+          doc = store.addKnowledge(/[\u0600-\u06FF]/.test(g.question) ? 'أسئلة وأجوبة' : 'FAQ', '');
+          doc.faq = true;
+        }
+        doc.text = `${doc.text ? doc.text + '\n\n' : ''}Q: ${g.question}\nA: ${answer}`;
+        g.status = 'answered';
+        g.answer = answer;
+      } else g.status = 'dismissed';
+      store.save();
+      return send(res, 200, { ok: true });
+    }
+
+    // ----- team -----
+    if (p === '/api/users' && method === 'GET') return send(res, 200, { users: d.users.map(({ salt, hash, ...u }) => u) });
+    if (p === '/api/users' && method === 'POST') {
+      const body = await readJson(req);
+      const username = String(body.username || '').trim().toLowerCase();
+      if (!/^[a-z0-9._-]{3,32}$/.test(username)) return send(res, 400, { error: 'Username: 3-32 letters, digits, dots or dashes' });
+      if (d.users.some((u) => u.username === username)) return send(res, 409, { error: 'That username is taken' });
+      if (String(body.password || '').length < 8) return send(res, 400, { error: 'Password must be at least 8 characters' });
+      const u = { id: crypto.randomUUID(), name: String(body.name || username).slice(0, 60), username, role: 'agent', ...hashPassword(String(body.password)), createdAt: new Date().toISOString() };
+      d.users.push(u);
+      store.flush();
+      return send(res, 200, { user: { id: u.id, name: u.name, username, role: u.role } });
+    }
+    if ((m = p.match(/^\/api\/users\/([\w-]+)$/)) && method === 'DELETE') {
+      d.users = d.users.filter((u) => u.id !== m[1]);
+      store.flush();
+      return send(res, 200, { ok: true });
+    }
+    if (p === '/api/me/password' && method === 'POST') {
+      const body = await readJson(req);
+      const target = who.uid === 'owner' ? d.admin : d.users.find((u) => u.id === who.uid);
+      if (!verifyPassword(String(body.current || ''), target)) return send(res, 401, { error: 'Current password is wrong' });
+      if (String(body.next || '').length < 8) return send(res, 400, { error: 'New password must be at least 8 characters' });
+      Object.assign(target, hashPassword(String(body.next)));
+      store.flush();
+      return send(res, 200, { ok: true }, { 'set-cookie': newSession(req, who.uid) });
+    }
+
     if (p === '/api/settings' && method === 'GET') {
       return send(res, 200, { settings: maskedSettings(), claudeModels: CLAUDE_MODELS, webhookPath: `${basePath}/webhooks/meta`, telegramBot: telegram.status().username });
     }
@@ -488,7 +632,7 @@ export function createTenant({ dataDir, slug = '', basePath = '', setupToken = '
     return send(res, 404, { error: 'Not found' });
   }
 
-  return {
+  const tenantApi = {
     slug,
     store,
     agent,
@@ -500,14 +644,20 @@ export function createTenant({ dataDir, slug = '', basePath = '', setupToken = '
     async start() {
       await telegram.sync();
       scheduleCatalog();
+      schedTimer = setInterval(() => runScheduled(tenantApi).catch((e) => console.error('[scheduler]', e.message)), 60_000);
+      schedTimer.unref?.();
       if (store.data.settings.catalog.source !== 'none' && !store.data.catalog.syncedAt) syncCatalog(store).catch(() => {});
     },
     stop() {
       telegram.stop();
       clearInterval(catalogTimer);
+      clearInterval(schedTimer);
       store.flush();
     },
+    sendTo,
+    runScheduled: (now) => runScheduled(tenantApi, now),
   };
+  return tenantApi;
 }
 
 // First boot only: let docker-compose / hosting panels preconfigure the AI.

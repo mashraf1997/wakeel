@@ -15,26 +15,32 @@ export function verifyPassword(password, admin) {
   return hash.length === expected.length && crypto.timingSafeEqual(hash, expected);
 }
 
-export function createSession(secret, passwordHash) {
+export function createSession(secret, passwordHash, uid = 'owner') {
   // Binding to the password hash logs out every session when the password changes.
-  const payload = Buffer.from(JSON.stringify({ exp: Date.now() + SESSION_DAYS * 864e5, v: passwordHash.slice(0, 16) })).toString('base64url');
+  const payload = Buffer.from(JSON.stringify({ exp: Date.now() + SESSION_DAYS * 864e5, u: uid, v: passwordHash.slice(0, 16) })).toString('base64url');
   const sig = crypto.createHmac('sha256', secret).update(payload).digest('base64url');
   return `${payload}.${sig}`;
 }
 
-export function checkSession(secret, passwordHash, token) {
-  if (!token || !passwordHash) return false;
+/**
+ * @param hashFor (uid) => password hash of that user, or null
+ * @returns the user id ('owner' or a staff id) or null
+ */
+export function checkSession(secret, token, hashFor) {
+  if (!token) return null;
   const [payload, sig] = token.split('.');
-  if (!payload || !sig) return false;
+  if (!payload || !sig) return null;
   const expected = crypto.createHmac('sha256', secret).update(payload).digest('base64url');
   const a = Buffer.from(sig);
   const b = Buffer.from(expected);
-  if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) return false;
+  if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) return null;
   try {
     const data = JSON.parse(Buffer.from(payload, 'base64url').toString());
-    return data.exp > Date.now() && data.v === passwordHash.slice(0, 16);
+    const uid = data.u || 'owner';
+    const hash = hashFor(uid);
+    return hash && data.exp > Date.now() && data.v === hash.slice(0, 16) ? uid : null;
   } catch {
-    return false;
+    return null;
   }
 }
 
