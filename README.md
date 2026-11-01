@@ -213,6 +213,17 @@ public/              dashboard and agency console (no build step) and widget.js
 
 Pull requests are welcome. Please open an issue first for larger changes.
 
+## More open-source tools for small businesses
+
+| | |
+|---|---|
+| [**Dukkan**](https://github.com/mashraf1997/dukkan) | WhatsApp ordering store and QR menu. Wakeel can take orders straight into it. |
+| [**Mawid**](https://github.com/mashraf1997/mawid) | Your own booking page |
+| [**Nashr**](https://github.com/mashraf1997/nashr) | AI-written social media posts, published on schedule |
+| [**Khatm**](https://github.com/mashraf1997/khatm) | Digital loyalty stamp card |
+| [**Moallem**](https://github.com/mashraf1997/moallem) | Attendance, fees and results for private tutors |
+| [**Fatoora**](https://github.com/mashraf1997/fatoora) | Invoices and quotes in Arabic and English |
+
 ## License
 
 MIT
