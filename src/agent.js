@@ -7,6 +7,16 @@ import { catalogText, findProduct, createDukkanOrder } from './catalog.js';
 import { availability } from './calendar.js';
 import { transcribe, sniffImageType, IMAGE_TYPES } from './media.js';
 import { createPaymentLink, paymentsReady } from './payments.js';
+import { mawidServices, mawidSlots, mawidBook, findService, mawidText } from './mawid.js';
+
+const usesMawid = (d) => d.settings.calendar.source === 'mawid' && Boolean(d.settings.calendar.mawidUrl);
+const MAWID_ERRORS = {
+  slot_taken: 'That time was just taken. Check availability again and offer another time.',
+  name_required: "Ask for the customer's name.",
+  phone_required: "Ask for the customer's phone number.",
+  invalid_service: 'Pick one of the services from the booking list.',
+  closed: 'The business is not taking online bookings right now. Hand off to a human.',
+};
 import { normalize } from './knowledge.js';
 import crypto from 'node:crypto';
 
@@ -70,7 +80,8 @@ export function buildTools(store) {
       name: 'book_appointment',
       description:
         'Record an appointment or reservation after the customer has confirmed the service, date and time. ' +
-        (d.settings.calendar.enabled ? 'Check the time with check_availability first and only book a free slot. ' : '') +
+        (d.settings.calendar.enabled || usesMawid(d) ? 'Check the time with check_availability first and only book a free slot. ' : '') +
+        (usesMawid(d) ? 'Bookings go straight into the booking system; customer_name and phone are required. ' : '') +
         'The owner confirms it afterwards, so tell the customer it is pending confirmation.',
       parameters: {
         type: 'object',
@@ -93,11 +104,11 @@ export function buildTools(store) {
       parameters: { type: 'object', properties: { reason: { type: 'string' } }, required: ['reason'] },
     },
   ];
-  if (d.settings.calendar.enabled) {
+  if (d.settings.calendar.enabled || usesMawid(d)) {
     tools.push({
       name: 'check_availability',
-      description: 'List free appointment start times on a date. Use before suggesting or booking a time.',
-      parameters: { type: 'object', properties: { date: { type: 'string', description: 'YYYY-MM-DD' } }, required: ['date'] },
+      description: 'List free appointment start times on a date. Use before suggesting or booking a time.' + (usesMawid(d) ? ' Pass the service name from the bookable services list.' : ''),
+      parameters: { type: 'object', properties: { date: { type: 'string', description: 'YYYY-MM-DD' }, service: { type: 'string', description: 'Service name' } }, required: ['date'] },
     });
   }
   tools.push({
@@ -165,6 +176,8 @@ export function buildSystemPrompt(store, query) {
   field('Products, services and prices', p.products);
   field('Policies (delivery, returns, payment)', p.policies);
 
+  const mawid = store.runtime?.mawid;
+  if (mawid?.services?.length) lines.push('', '## Bookable services (from the online booking page; the source of truth for durations and prices)', mawidText(mawid));
   const catalog = catalogText(store);
   if (catalog) lines.push('', `## Product catalog (synced from the online store; this is the source of truth for prices and stock)`, catalog);
 
@@ -302,6 +315,13 @@ export class Agent {
   }
 
   async generateReply(conv, outgoingImages) {
+    if (usesMawid(this.store.data)) {
+      this.store.runtime = this.store.runtime || {};
+      this.store.runtime.mawid = await mawidServices(this.store.data.settings.calendar.mawidUrl).catch((err) => {
+        console.error('[mawid]', err.message);
+        return this.store.runtime.mawid || null;
+      });
+    }
     const lastCustomer = [...conv.messages].reverse().find((m) => m.role === 'customer');
     return runTurn(this.store.data.settings.ai, {
       system: buildSystemPrompt(this.store, lastCustomer?.text || ''),
@@ -360,6 +380,23 @@ export class Agent {
         return { ok: true, reference: r.id, status: 'pending_owner_confirmation', ...(total != null ? { items_total: total } : {}) };
       }
       case 'book_appointment': {
+        if (usesMawid(d)) {
+          const info = await mawidServices(d.settings.calendar.mawidUrl);
+          const svc = findService(info.services, input.service);
+          if (!svc) return { ok: false, error: 'invalid_service', services: info.services.map((x) => x.name) };
+          const phone = input.phone || (conv.channel === 'whatsapp' ? conv.externalId : '');
+          let booked;
+          try {
+            booked = await mawidBook(d.settings.calendar.mawidUrl, { serviceId: svc.id, date: String(input.date), time: String(input.time), name: input.customer_name || conv.name || '', phone, notes: input.notes || '' });
+          } catch (err) {
+            const out = { ok: false, error: err.code, what_to_do: MAWID_ERRORS[err.code] || 'The booking could not be made. Apologise and hand off to a human.' };
+            if (err.code === 'slot_taken') out.free_slots = await mawidSlots(d.settings.calendar.mawidUrl, svc.id, String(input.date)).catch(() => []);
+            return out;
+          }
+          const r = this.store.addRequest({ type: 'booking', conversationId: conv.id, channel: conv.channel, customerName: input.customer_name || conv.name || '', phone, service: svc.name, date: String(input.date), time: String(input.time), notes: input.notes || '', externalRef: `Mawid #${booked.no}`, status: booked.status === 'confirmed' ? 'confirmed' : 'pending' });
+          this.afterRequest(conv, r);
+          return { ok: true, reference: r.id, booking_number: booked.no, status: booked.status, ...(booked.deposit ? { deposit: booked.deposit, payment_info: booked.paymentInfo } : {}), manage_link: booked.manageUrl };
+        }
         if (d.settings.calendar.enabled) {
           const free = await availability(this.store, String(input.date));
           if (!free.slots.includes(String(input.time))) {
@@ -382,6 +419,13 @@ export class Agent {
         return { ok: true, reference: r.id, status: 'pending_owner_confirmation' };
       }
       case 'check_availability': {
+        if (usesMawid(d)) {
+          const info = await mawidServices(d.settings.calendar.mawidUrl);
+          const svc = findService(info.services, input.service);
+          if (!svc) return { ok: false, error: 'which_service', services: info.services.map((x) => x.name) };
+          const slots = await mawidSlots(d.settings.calendar.mawidUrl, svc.id, String(input.date));
+          return { date: String(input.date), service: svc.name, duration_minutes: svc.duration, free_slots: slots.slice(0, 24) };
+        }
         const free = await availability(this.store, String(input.date));
         return free.open ? { date: free.date, free_slots: free.slots, slot_minutes: free.slotMinutes } : { date: free.date, free_slots: [], reason: free.reason };
       }

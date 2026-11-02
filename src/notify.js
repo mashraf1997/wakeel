@@ -65,7 +65,8 @@ export class Notifier {
     if (this.telegram?.token) {
       for (const chatId of cfg.telegramChats) jobs.push(this.telegram.send(chatId, text).catch((e) => console.error('[notify] telegram', e.message)));
     }
-    if (cfg.webhookUrl) {
+    // Several webhook URLs can be listed, separated by spaces or new lines (e.g. Fatoora and Khatm).
+    for (const hookUrl of String(cfg.webhookUrl || '').split(/\s+/).filter((u) => /^https?:\/\//.test(u))) {
       const body = {
         event,
         business: this.store.data.profile.businessName,
@@ -76,7 +77,7 @@ export class Notifier {
         at: new Date().toISOString(),
       };
       jobs.push(
-        fetch(cfg.webhookUrl, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body), signal: AbortSignal.timeout(8000) })
+        fetch(hookUrl, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body), signal: AbortSignal.timeout(8000) })
           .catch((e) => console.error('[notify] webhook', e.message)),
       );
     }

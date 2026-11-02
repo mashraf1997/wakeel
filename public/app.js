@@ -73,10 +73,11 @@
       days: ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'],
       msTitle: 'فيسبوك ماسنجر', msLead: 'رسائل صفحتك على فيسبوك، على نفس رابط الـ Webhook.', msToken: 'Page access token',
       msSteps: ['في نفس App بتاع Meta ضيف منتج Messenger', 'اربط صفحتك وانسخ Page access token', 'حط رابط الـ Webhook والـ Verify token، واشترك في messages'],
-      notifyTitle: 'الإشعارات', notifyLead: 'يوصلك تنبيه أول ما ييجي طلب أو حجز أو عميل محتاجك.', tgLink: 'إشعارات على تليجرام', tgLinkHint: 'افتح الرابط ده من موبايلك واضغط Start:', tgLinkNeed: 'وصّل بوت تليجرام الأول (تحت) عشان تستلم الإشعارات عليه.', linked: 'أجهزة مربوطة', unlink: 'فك الربط', hook: 'Webhook (لـ n8n أو Make أو Zapier)', events: 'ابعتلي لما', ev_order: 'طلب جديد', ev_booking: 'حجز جديد', ev_handoff: 'عميل محتاجني', ev_error: 'الوكيل يقع في مشكلة', testNotify: 'ابعت إشعار تجربة', browserNotify: 'إشعارات المتصفح', enableBrowser: 'فعّل إشعارات المتصفح', sent: 'اتبعت ✓',
+      notifyTitle: 'الإشعارات', notifyLead: 'يوصلك تنبيه أول ما ييجي طلب أو حجز أو عميل محتاجك.', tgLink: 'إشعارات على تليجرام', tgLinkHint: 'افتح الرابط ده من موبايلك واضغط Start:', tgLinkNeed: 'وصّل بوت تليجرام الأول (تحت) عشان تستلم الإشعارات عليه.', linked: 'أجهزة مربوطة', unlink: 'فك الربط', hook: 'Webhook (لـ n8n أو Make أو Zapier أو فاتورة أو ختم، وتقدر تحط أكتر من رابط بينهم مسافة)', events: 'ابعتلي لما', ev_order: 'طلب جديد', ev_booking: 'حجز جديد', ev_handoff: 'عميل محتاجني', ev_error: 'الوكيل يقع في مشكلة', testNotify: 'ابعت إشعار تجربة', browserNotify: 'إشعارات المتصفح', enableBrowser: 'فعّل إشعارات المتصفح', sent: 'اتبعت ✓',
       voiceTitle: 'الرسائل الصوتية', voiceLead: 'الوكيل يحوّل الفويس لنص ويرد عليه. محتاج خدمة تحويل صوت لنص متوافقة مع OpenAI.', voiceHint: 'مثال مجاني: Groq بالرابط https://api.groq.com/openai/v1 والنموذج whisper-large-v3-turbo', vision: 'النموذج بيشوف الصور', visionHint: 'فعّلها لو النموذج بيدعم الصور (Claude بيدعمها دايماً)',
       voiceNote: 'رسالة صوتية', newOrderAlert: 'طلب جديد!', attentionAlert: 'عميل محتاجك',
       stepNotify: 'فعّل الإشعارات عشان ماتفوّتش طلب',
+      calSource: 'الحجز بيتم في', calBuiltin: 'وكيل نفسه', mawidUrl: 'رابط صفحة الحجز على Mawid', mawidNote: 'وكيل هيقرا الخدمات والمواعيد الفاضية من Mawid ويحجز فيه مباشرة. إعدادات المواعيد اللي تحت مش هتتستخدم.',
       username: 'اسم المستخدم', usernameHint: 'للموظفين بس. صاحب البيزنس يسيبه فاضي.',
       gapsTitle: 'أسئلة الوكيل ماعرفش يجاوبها', gapsLead: 'اكتب الإجابة مرة واحدة والوكيل هيعرفها بعد كده.', answerPh: 'اكتب الإجابة…', saveAnswer: 'حفظ الإجابة', dismiss: 'تجاهل', times: 'مرة', noGaps: 'مفيش أسئلة معلّقة 👌', gapsN: 'سؤال من غير إجابة',
       rating: 'متوسط التقييم (30 يوم)', ratings_n: 'تقييم',
@@ -94,10 +95,11 @@
       days: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
       msTitle: 'Facebook Messenger', msLead: 'Messages to your Facebook Page, on the same webhook URL.', msToken: 'Page access token',
       msSteps: ['In the same Meta app, add the Messenger product', 'Connect your Page and copy its Page access token', 'Set the webhook URL and verify token, subscribe to messages'],
-      notifyTitle: 'Notifications', notifyLead: 'Get an alert the moment an order, booking or customer needs you.', tgLink: 'Telegram alerts', tgLinkHint: 'Open this link on your phone and tap Start:', tgLinkNeed: 'Connect a Telegram bot first (below) to receive alerts there.', linked: 'Linked chats', unlink: 'Unlink all', hook: 'Webhook (for n8n, Make or Zapier)', events: 'Alert me about', ev_order: 'New orders', ev_booking: 'New bookings', ev_handoff: 'Customers who need me', ev_error: 'Assistant errors', testNotify: 'Send a test alert', browserNotify: 'Browser notifications', enableBrowser: 'Turn on browser notifications', sent: 'Sent ✓',
+      notifyTitle: 'Notifications', notifyLead: 'Get an alert the moment an order, booking or customer needs you.', tgLink: 'Telegram alerts', tgLinkHint: 'Open this link on your phone and tap Start:', tgLinkNeed: 'Connect a Telegram bot first (below) to receive alerts there.', linked: 'Linked chats', unlink: 'Unlink all', hook: 'Webhooks (n8n, Make, Zapier, Fatoora, Khatm; separate several URLs with spaces)', events: 'Alert me about', ev_order: 'New orders', ev_booking: 'New bookings', ev_handoff: 'Customers who need me', ev_error: 'Assistant errors', testNotify: 'Send a test alert', browserNotify: 'Browser notifications', enableBrowser: 'Turn on browser notifications', sent: 'Sent ✓',
       voiceTitle: 'Voice notes', voiceLead: 'The assistant transcribes voice notes and answers them. Needs an OpenAI-compatible speech-to-text API.', voiceHint: 'Free option: Groq at https://api.groq.com/openai/v1 with model whisper-large-v3-turbo', vision: 'Model can see images', visionHint: 'Turn on if your model supports images (Claude always does)',
       voiceNote: 'Voice note', newOrderAlert: 'New order!', attentionAlert: 'A customer needs you',
       stepNotify: 'Turn on notifications so you never miss an order',
+      calSource: 'Bookings are made in', calBuiltin: 'Wakeel itself', mawidUrl: 'Your Mawid booking page URL', mawidNote: 'Wakeel reads services and free times from Mawid and books straight into it. The hours below are not used.',
       username: 'Username', usernameHint: 'Staff only. The owner leaves it empty.',
       gapsTitle: 'Questions the assistant could not answer', gapsLead: 'Write the answer once and the assistant will know it from now on.', answerPh: 'Write the answer…', saveAnswer: 'Save answer', dismiss: 'Dismiss', times: 'times', noGaps: 'No open questions 👌', gapsN: 'unanswered questions',
       rating: 'Average rating (30 days)', ratings_n: 'ratings',
@@ -606,6 +608,9 @@
 
       <section class="card">
         <div><h2>${t('calTitle')}</h2><p class="muted small">${t('calLead')}</p></div>
+        <div class="grid2"><label class="field" for="cal-src">${t('calSource')}<select id="cal-src"><option value="builtin" ${cal.source !== 'mawid' ? 'selected' : ''}>${t('calBuiltin')}</option><option value="mawid" ${cal.source === 'mawid' ? 'selected' : ''}>Mawid</option></select></label>
+          <label class="field" for="cal-mu" id="cal-mu-f">${t('mawidUrl')}<input type="text" id="cal-mu" class="ltr" value="${esc(cal.mawidUrl || '')}" placeholder="https://book.example.com"></label></div>
+        <p class="muted small" id="cal-mnote">${t('mawidNote')}</p>
         <label class="switch"><input type="checkbox" id="cal-on" ${cal.enabled ? 'checked' : ''}>${t('calOn')}</label>
         <div class="grid4">
           <label class="field" for="cal-open">${t('open')}<input type="time" id="cal-open" value="${esc(cal.open)}"></label>
@@ -647,12 +652,15 @@
     $('#cal-save').onclick = async () => {
       try {
         await saveSettings({ calendar: {
+          source: $('#cal-src').value, mawidUrl: $('#cal-mu').value,
           enabled: $('#cal-on').checked, open: $('#cal-open').value, close: $('#cal-close').value, slotMinutes: Number($('#cal-slot').value) || 30,
           timezone: $('#cal-tz').value, icsUrl: $('#cal-ics').value, closedDays: $$('.days input:checked', box).map((i) => Number(i.value)),
         } });
         toast(t('saved'));
       } catch (e) { toast(e.message); }
     };
+    const syncCal = () => { const m = $('#cal-src').value === 'mawid'; $('#cal-mu-f').style.display = m ? '' : 'none'; $('#cal-mnote').style.display = m ? '' : 'none'; };
+    $('#cal-src').onchange = syncCal; syncCal();
     $('#cal-check').onclick = async () => {
       try {
         const r = await api('/api/availability?date=' + encodeURIComponent($('#cal-day').value));

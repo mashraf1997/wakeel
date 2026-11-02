@@ -50,6 +50,8 @@ export function defaultData() {
       },
       catalog: { source: 'none', url: '', intervalMinutes: 60 }, // none | dukkan | woocommerce | shopify
       calendar: {
+        source: 'builtin', // builtin | mawid
+        mawidUrl: '',
         enabled: false,
         icsUrl: '',
         timezone: '',
