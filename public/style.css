@@ -207,3 +207,4 @@ details.steps ol { margin: 10px 0 0; padding-inline-start: 20px; display: grid; 
 .checks input { accent-color: var(--accent); }
 .card > .pill { justify-self: start; }
 #add .grid2 { align-items: end; }
+.demo-bar { position: fixed; bottom: 0; inset-inline: 0; background: var(--warn); color: #fff; text-align: center; font-size: .85rem; padding: 6px max(16px, env(safe-area-inset-right)) calc(6px + env(safe-area-inset-bottom)); z-index: 40; }

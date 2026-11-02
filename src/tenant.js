@@ -15,6 +15,7 @@ import { applyTemplate, TEMPLATES } from './templates.js';
 import { sniffImageType, IMAGE_TYPES, MAX_IMAGE_BYTES } from './media.js';
 import { createPaymentLink, paymentsReady, verifyStripeEvent } from './payments.js';
 import { runScheduled } from './scheduler.js';
+import { demoConfig, seedDemo, DEMO_LOCKED_SETTINGS } from './demo.js';
 import { hashPassword, verifyPassword, createSession, checkSession, parseCookies, RateLimiter } from './auth.js';
 import { send, readJson, readBody, clientIp, originOf, serveStatic, sendFile, cookie, VERSION } from './http.js';
 
@@ -22,6 +23,8 @@ const MASK = '••••••';
 
 export function createTenant({ dataDir, slug = '', basePath = '', setupToken = '', env = process.env, isAgencyAuthed = () => false }) {
   const store = new Store(dataDir);
+  const demo = slug ? null : demoConfig(env); // only the main business can be a demo
+  if (demo) seedDemo(store, demo);
   applyEnvDefaults(store, env);
   const cookieName = slug ? `wk_session_${slug}` : 'wk_session';
 
@@ -64,6 +67,7 @@ export function createTenant({ dataDir, slug = '', basePath = '', setupToken = '
 
   // ---------------- catalog sync schedule ----------------
   let schedTimer = null;
+  let demoTimer = null;
   let catalogTimer = null;
   function scheduleCatalog() {
     clearInterval(catalogTimer);
@@ -262,7 +266,7 @@ export function createTenant({ dataDir, slug = '', basePath = '', setupToken = '
         }
       }
       const who = authed ? whoIs(req) : null;
-      return send(res, 200, { needsSetup: !store.data.admin, authed, role: who?.role || null, userName: who?.name || '', hasStaff: store.data.users.length > 0, setupTokenRequired: Boolean(setupToken), version: VERSION, basePath, templates: Object.keys(TEMPLATES) });
+      return send(res, 200, { demo: demo ? { password: demo.password, resetMinutes: demo.resetMinutes } : null, needsSetup: !store.data.admin, authed, role: who?.role || null, userName: who?.name || '', hasStaff: store.data.users.length > 0, setupTokenRequired: Boolean(setupToken), version: VERSION, basePath, templates: Object.keys(TEMPLATES) });
     }
     if (p === '/api/setup' && method === 'POST') {
       if (store.data.admin) return send(res, 409, { error: 'Already set up' });
@@ -294,6 +298,7 @@ export function createTenant({ dataDir, slug = '', basePath = '', setupToken = '
     }
 
     // ----- dashboard API (auth required) -----
+    if (demo && method !== 'GET' && ['/api/setup', '/api/password', '/api/me/password', '/api/users', '/api/notify/test', '/api/catalog/sync'].includes(p)) return send(res, 403, { error: 'Not available in the demo' });
     if (p.startsWith('/api/')) {
       const who = whoIs(req);
       if (!who) return send(res, 401, { error: 'Not signed in' });
@@ -593,6 +598,7 @@ export function createTenant({ dataDir, slug = '', basePath = '', setupToken = '
     if (p === '/api/settings' && method === 'PUT') {
       const body = await readJson(req);
       const before = JSON.stringify(d.settings.catalog);
+      if (demo) for (const k of DEMO_LOCKED_SETTINGS) delete (body.settings || {})[k];
       mergeSecrets(d.settings, body.settings || {});
       store.save();
       await telegram.sync();
@@ -642,6 +648,10 @@ export function createTenant({ dataDir, slug = '', basePath = '', setupToken = '
     handle,
     overview,
     async start() {
+      if (demo) {
+        demoTimer = setInterval(() => seedDemo(store, demo), demo.resetMinutes * 60_000);
+        demoTimer.unref?.();
+      }
       await telegram.sync();
       scheduleCatalog();
       schedTimer = setInterval(() => runScheduled(tenantApi).catch((e) => console.error('[scheduler]', e.message)), 60_000);
@@ -652,6 +662,7 @@ export function createTenant({ dataDir, slug = '', basePath = '', setupToken = '
       telegram.stop();
       clearInterval(catalogTimer);
       clearInterval(schedTimer);
+      clearInterval(demoTimer);
       store.flush();
     },
     sendTo,

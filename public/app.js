@@ -77,6 +77,7 @@
       voiceTitle: 'الرسائل الصوتية', voiceLead: 'الوكيل يحوّل الفويس لنص ويرد عليه. محتاج خدمة تحويل صوت لنص متوافقة مع OpenAI.', voiceHint: 'مثال مجاني: Groq بالرابط https://api.groq.com/openai/v1 والنموذج whisper-large-v3-turbo', vision: 'النموذج بيشوف الصور', visionHint: 'فعّلها لو النموذج بيدعم الصور (Claude بيدعمها دايماً)',
       voiceNote: 'رسالة صوتية', newOrderAlert: 'طلب جديد!', attentionAlert: 'عميل محتاجك',
       stepNotify: 'فعّل الإشعارات عشان ماتفوّتش طلب',
+      demoLogin: 'نسخة تجريبية. كلمة السر:', demoBar: 'دي نسخة تجريبية بترجع لأولها كل {m} دقيقة. الإعدادات اللي بتبعت حاجة لبرّه مقفولة.',
       calSource: 'الحجز بيتم في', calBuiltin: 'وكيل نفسه', mawidUrl: 'رابط صفحة الحجز على Mawid', mawidNote: 'وكيل هيقرا الخدمات والمواعيد الفاضية من Mawid ويحجز فيه مباشرة. إعدادات المواعيد اللي تحت مش هتتستخدم.',
       username: 'اسم المستخدم', usernameHint: 'للموظفين بس. صاحب البيزنس يسيبه فاضي.',
       gapsTitle: 'أسئلة الوكيل ماعرفش يجاوبها', gapsLead: 'اكتب الإجابة مرة واحدة والوكيل هيعرفها بعد كده.', answerPh: 'اكتب الإجابة…', saveAnswer: 'حفظ الإجابة', dismiss: 'تجاهل', times: 'مرة', noGaps: 'مفيش أسئلة معلّقة 👌', gapsN: 'سؤال من غير إجابة',
@@ -99,6 +100,7 @@
       voiceTitle: 'Voice notes', voiceLead: 'The assistant transcribes voice notes and answers them. Needs an OpenAI-compatible speech-to-text API.', voiceHint: 'Free option: Groq at https://api.groq.com/openai/v1 with model whisper-large-v3-turbo', vision: 'Model can see images', visionHint: 'Turn on if your model supports images (Claude always does)',
       voiceNote: 'Voice note', newOrderAlert: 'New order!', attentionAlert: 'A customer needs you',
       stepNotify: 'Turn on notifications so you never miss an order',
+      demoLogin: 'Demo. Password:', demoBar: 'This is a demo that resets every {m} minutes. Settings that reach outside are locked.',
       calSource: 'Bookings are made in', calBuiltin: 'Wakeel itself', mawidUrl: 'Your Mawid booking page URL', mawidNote: 'Wakeel reads services and free times from Mawid and books straight into it. The hours below are not used.',
       username: 'Username', usernameHint: 'Staff only. The owner leaves it empty.',
       gapsTitle: 'Questions the assistant could not answer', gapsLead: 'Write the answer once and the assistant will know it from now on.', answerPh: 'Write the answer…', saveAnswer: 'Save answer', dismiss: 'Dismiss', times: 'times', noGaps: 'No open questions 👌', gapsN: 'unanswered questions',
@@ -212,9 +214,11 @@
 
   function renderLogin() {
     authFrame(`<h1>${t('loginTitle')}</h1>
+      ${state.session.demo ? `<p class="pill warn" style="justify-self:start">${t('demoLogin')} <b class="mono">${esc(state.session.demo.password)}</b></p>` : ''}
       ${state.session.hasStaff ? `<label class="field" for="f-user">${t('username')} <span class="hint">${t('usernameHint')}</span><input type="text" id="f-user" class="ltr" autocomplete="username"></label>` : ''}
       <label class="field" for="f-pw">${t('password')}<input type="password" id="f-pw" autocomplete="current-password" required></label>`);
     $('#authBtn').textContent = t('login');
+    if (state.session.demo) $('#f-pw').value = state.session.demo.password;
     $('#authForm').onsubmit = async (e) => {
       e.preventDefault();
       try { await api('/api/login', { method: 'POST', body: { username: $('#f-user')?.value || '', password: $('#f-pw').value } }); boot(); }
@@ -242,7 +246,7 @@
       </nav>
       <nav class="mobile-nav" aria-label="Main">${navItems}</nav>
       <main class="main" id="main"></main>
-    </div>`;
+    </div>${state.session.demo ? `<div class="demo-bar" role="note">${t('demoBar').replace('{m}', state.session.demo.resetMinutes)}</div>` : ''}`;
     $('#langBtn').onclick = () => { lang = lang === 'ar' ? 'en' : 'ar'; safeSet('wk_lang', lang); boot(); };
     $('#logoutBtn').onclick = async () => { await api('/api/logout', { method: 'POST', body: {} }); boot(); };
   }
